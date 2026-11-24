@@ -96,9 +96,8 @@ jobs:
             --buildNumber="$BUILD_NUMBER"
 
           mkdir -p "$GITHUB_WORKSPACE/artifact"
-          for f in bazel-out/applebin_ios-ios_arm*-opt-ST-*/bin/Telegram/Telegram.ipa; do
-            cp "$f" "$GITHUB_WORKSPACE/artifact/MetaGram.ipa"
-          done
+          # bazel-bin points at the last build's configuration (the bazel-out folder names change between versions)
+          cp -L bazel-bin/Telegram/Telegram.ipa "$GITHUB_WORKSPACE/artifact/MetaGram.ipa"
           ls -la "$GITHUB_WORKSPACE/artifact"
 
       - name: Save Bazel cache.
