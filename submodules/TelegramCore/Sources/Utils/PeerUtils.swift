@@ -245,7 +245,11 @@ public extension Peer {
     var isPremium: Bool {
         switch self {
         case let user as TelegramUser:
-            return user.flags.contains(.isPremium)
+            if user.flags.contains(.isPremium) {
+                return true
+            }
+            // MetaGram "Local Telegram Premium": the account's own user counts as Premium on this device
+            return MetaGramSettings.hasLocalPremium(peerId: user.id.toInt64())
         default:
             return false
         }

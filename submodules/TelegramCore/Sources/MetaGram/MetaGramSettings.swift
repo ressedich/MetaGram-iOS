@@ -78,6 +78,8 @@ public enum MetaGramSettings {
         /// Ignore "Restrict saving content": forward, copy and save from protected chats. Protected messages are sent
         /// as new messages with their media downloaded and uploaded again, since the server refuses to forward them.
         case bypassCopyProtection = "metagram.spy.bypassCopyProtection"
+        /// Self-destructing and view-once media stays viewable after its timer runs out.
+        case keepSelfDestructingMedia = "metagram.spy.keepSelfDestructingMedia"
 
         // Appearance
         /// Hide names, phone numbers and avatars of chats in lists (for screen sharing).
@@ -98,7 +100,7 @@ public enum MetaGramSettings {
     public static let ghostKeys: [Key] = [.dontReadMessages, .dontReadStories, .dontSendOnline, .dontSendTyping]
 
     /// Options that are on in a fresh install.
-    private static let defaultOn: Set<Key> = [.readOnInteract, .saveInBotDialogs, .translucentDeleted, .bypassCopyProtection]
+    private static let defaultOn: Set<Key> = [.readOnInteract, .saveInBotDialogs, .translucentDeleted, .bypassCopyProtection, .keepSelfDestructingMedia]
 
     public static func get(_ key: Key) -> Bool {
         let defaults = UserDefaults.standard
@@ -126,6 +128,28 @@ public enum MetaGramSettings {
         for key in ghostKeys {
             set(key, enabled)
         }
+    }
+
+    // MARK: - Local Premium
+
+    /// The users of this device's accounts (`PeerId.toInt64()`), registered as each account is created.
+    private static let accountPeerIds = Atomic<Set<Int64>>(value: Set())
+
+    static func registerAccountPeer(_ peerId: Int64) {
+        let _ = accountPeerIds.modify { current in
+            var current = current
+            current.insert(peerId)
+            return current
+        }
+    }
+
+    /// Whether `peerId` is one of this device's accounts and "Local Telegram Premium" is on: the client then treats
+    /// it as Premium. The server still sees a regular account.
+    static func hasLocalPremium(peerId: Int64) -> Bool {
+        if !get(.localPremium) {
+            return false
+        }
+        return accountPeerIds.with { $0.contains(peerId) }
     }
 
     // MARK: - Lists

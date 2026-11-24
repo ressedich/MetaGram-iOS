@@ -451,6 +451,13 @@ private class AdMessagesHistoryContextImpl {
 
         self.stateValue = State(interPostInterval: nil, messages: [])
 
+        if MetaGramSettings.get(.disableAds) {
+            // MetaGram "Disable Ads": no sponsored messages at all, not even ones cached before it was turned on
+            self.isActivated = true
+            self.state.set(.single(State(interPostInterval: nil, messages: [])))
+            return
+        }
+
         if messageId == nil {
             self.state.set(CachedState.getCached(postbox: account.postbox, peerId: peerId)
             |> mapToSignal { cachedState -> Signal<State, NoError> in

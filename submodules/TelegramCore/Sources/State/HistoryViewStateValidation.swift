@@ -898,7 +898,7 @@ private func validateBatch(postbox: Postbox, network: Network, transaction: Tran
                                             if currentMessage.localTags.contains(.OutgoingLiveLocation) {
                                                 updatedLocalTags.insert(.OutgoingLiveLocation)
                                             }
-                                            return .update(message.withUpdatedLocalTags(updatedLocalTags))
+                                            return .update(MetaGramSelfDestruct.keepingMedia(previous: currentMessage, updated: message.withUpdatedLocalTags(updatedLocalTags)))
                                         } else {
                                             var storeForwardInfo: StoreMessageForwardInfo?
                                             if let forwardInfo = currentMessage.forwardInfo {
@@ -1145,7 +1145,7 @@ private func validateReplyThreadBatch(postbox: Postbox, network: Network, transa
                                         if currentMessage.localTags.contains(.OutgoingLiveLocation) {
                                             updatedLocalTags.insert(.OutgoingLiveLocation)
                                         }
-                                        return .update(message.withUpdatedLocalTags(updatedLocalTags))
+                                        return .update(MetaGramSelfDestruct.keepingMedia(previous: currentMessage, updated: message.withUpdatedLocalTags(updatedLocalTags)))
                                     } else {
                                         var storeForwardInfo: StoreMessageForwardInfo?
                                         if let forwardInfo = currentMessage.forwardInfo {

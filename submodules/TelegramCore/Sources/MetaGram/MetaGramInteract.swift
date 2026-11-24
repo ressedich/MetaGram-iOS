@@ -14,17 +14,34 @@ enum MetaGramSend {
         }
         let scheduleTime = Int32(Date().timeIntervalSince1970) + 12
         return messages.map { message -> EnqueueMessage in
+            let delaysThis = delayed && canDelay(message)
             return message.withUpdatedAttributes { attributes -> [MessageAttribute] in
                 var attributes = attributes
                 if withoutSound && !attributes.contains(where: { $0 is NotificationInfoMessageAttribute }) {
                     attributes.append(NotificationInfoMessageAttribute(flags: .muted))
                 }
-                if delayed && !attributes.contains(where: { $0 is OutgoingScheduleInfoMessageAttribute }) {
+                if delaysThis && !attributes.contains(where: { $0 is OutgoingScheduleInfoMessageAttribute }) {
                     attributes.append(OutgoingScheduleInfoMessageAttribute(scheduleTime: scheduleTime, repeatPeriod: nil))
                 }
                 return attributes
             }
         }
+    }
+
+    /// "Delayed Send" schedules only plain text. Media is not delayed: its schedule time is fixed before the upload,
+    /// which can take longer than the delay, and the server does not schedule self-destructing (view-once) media,
+    /// so such messages arrived late or not at all. Forwards are not delayed either.
+    private static func canDelay(_ message: EnqueueMessage) -> Bool {
+        guard case let .message(_, attributes, _, mediaReference, _, _, _, _, _, _) = message else {
+            return false
+        }
+        if mediaReference != nil {
+            return false
+        }
+        if attributes.contains(where: { $0 is AutoremoveTimeoutMessageAttribute || $0 is AutoclearTimeoutMessageAttribute }) {
+            return false
+        }
+        return true
     }
 }
 

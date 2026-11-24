@@ -41,5 +41,7 @@ func mergedServerMessageUpdate(previous previousMessage: Message, updated messag
         updatedMedia = previousMessage.media
     }
 
-    return message.withUpdatedLocalTags(updatedLocalTags).withUpdatedFlags(updatedFlags).withUpdatedAttributes(updatedAttributes).withUpdatedMedia(updatedMedia)
+    let merged = message.withUpdatedLocalTags(updatedLocalTags).withUpdatedFlags(updatedFlags).withUpdatedAttributes(updatedAttributes).withUpdatedMedia(updatedMedia)
+    // MetaGram "Keep Self-Destructing Media": the server's expired version keeps the media stored here
+    return MetaGramSelfDestruct.keepingMedia(previous: previousMessage, updated: merged)
 }
