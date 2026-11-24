@@ -996,24 +996,28 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
             self.window?.rootViewController?.dismiss(animated: true, completion: nil)
         }, getAvailableAlternateIcons: {
             if #available(iOS 10.3, *) {
-                var icons = [
-                    PresentationAppIcon(name: "BlueIcon", imageName: "BlueIcon", isDefault: buildConfig.isAppStoreBuild),
-                    PresentationAppIcon(name: "New2", imageName: "New2"),
-                    PresentationAppIcon(name: "New1", imageName: "New1"),
-                    PresentationAppIcon(name: "BlackIcon", imageName: "BlackIcon"),
-                    PresentationAppIcon(name: "BlueClassicIcon", imageName: "BlueClassicIcon"),
-                    PresentationAppIcon(name: "BlackClassicIcon", imageName: "BlackClassicIcon"),
-                    PresentationAppIcon(name: "BlueFilledIcon", imageName: "BlueFilledIcon"),
-                    PresentationAppIcon(name: "BlackFilledIcon", imageName: "BlackFilledIcon")
+                let icons: [PresentationAppIcon] = [
+                    PresentationAppIcon(name: "MGDefault", imageName: "MGDefault", isDefault: true),
+                    PresentationAppIcon(name: "MGLight", imageName: "MGLight"),
+                    PresentationAppIcon(name: "MGNeon", imageName: "MGNeon"),
+                    PresentationAppIcon(name: "MGGold", imageName: "MGGold"),
+                    PresentationAppIcon(name: "MGPink", imageName: "MGPink"),
+                    PresentationAppIcon(name: "MGOcean", imageName: "MGOcean"),
+                    PresentationAppIcon(name: "MGPeaks", imageName: "MGPeaks"),
+                    PresentationAppIcon(name: "MGGhost", imageName: "MGGhost"),
+                    PresentationAppIcon(name: "MGGhostnight", imageName: "MGGhostnight"),
+                    PresentationAppIcon(name: "MGMoon", imageName: "MGMoon"),
+                    PresentationAppIcon(name: "MGAurora", imageName: "MGAurora"),
+                    PresentationAppIcon(name: "MGSleepy", imageName: "MGSleepy"),
+                    PresentationAppIcon(name: "MGEye", imageName: "MGEye"),
+                    PresentationAppIcon(name: "MGSpark", imageName: "MGSpark"),
+                    PresentationAppIcon(name: "MGSunset", imageName: "MGSunset"),
+                    PresentationAppIcon(name: "MGPlanet", imageName: "MGPlanet"),
+                    PresentationAppIcon(name: "MGBubble", imageName: "MGBubble"),
+                    PresentationAppIcon(name: "MGShadow", imageName: "MGShadow"),
+                    PresentationAppIcon(name: "MGMask", imageName: "MGMask"),
+                    PresentationAppIcon(name: "MGRing", imageName: "MGRing")
                 ]
-                if buildConfig.isInternalBuild {
-                    icons.append(PresentationAppIcon(name: "WhiteFilledIcon", imageName: "WhiteFilledIcon"))
-                }
-                
-                icons.append(PresentationAppIcon(name: "Premium", imageName: "Premium", isPremium: true))
-                icons.append(PresentationAppIcon(name: "PremiumTurbo", imageName: "PremiumTurbo", isPremium: true))
-                icons.append(PresentationAppIcon(name: "PremiumBlack", imageName: "PremiumBlack", isPremium: true))
-                
                 return icons
             } else {
                 return []

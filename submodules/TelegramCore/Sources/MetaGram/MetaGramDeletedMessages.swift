@@ -62,7 +62,11 @@ enum MetaGramDeletedMessages {
             if message.metaGramDeletedDate != nil {
                 continue
             }
-            if save && id.namespace == Namespaces.Message.Cloud {
+            var keepInThisChat = true
+            if !MetaGramSettings.get(.saveInBotDialogs), let user = transaction.getPeer(id.peerId) as? TelegramUser, user.botInfo != nil {
+                keepInThisChat = false
+            }
+            if save && keepInThisChat && id.namespace == Namespaces.Message.Cloud {
                 markDeleted(transaction: transaction, id: id, date: now)
             } else {
                 toDelete.append(id)

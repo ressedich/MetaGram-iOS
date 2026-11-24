@@ -4,18 +4,24 @@ import SwiftSignalKit
 internal import TelegramApi
 
 enum MetaGramSend {
-    /// Applies MetaGram's send options to outgoing messages ("Send without Sound").
-    static func prepare(_ messages: [EnqueueMessage]) -> [EnqueueMessage] {
-        guard MetaGramSettings.get(.sendWithoutSound) else {
+    /// Applies MetaGram's send options to outgoing messages ("Send without Sound", "Delayed Send").
+    static func prepare(_ messages: [EnqueueMessage], peerId: PeerId) -> [EnqueueMessage] {
+        let withoutSound = MetaGramSettings.get(.sendWithoutSound)
+        // secret chats have no scheduled messages
+        let delayed = MetaGramSettings.get(.delayedSend) && peerId.namespace != Namespaces.Peer.SecretChat
+        if !withoutSound && !delayed {
             return messages
         }
+        let scheduleTime = Int32(Date().timeIntervalSince1970) + 12
         return messages.map { message -> EnqueueMessage in
             return message.withUpdatedAttributes { attributes -> [MessageAttribute] in
-                if attributes.contains(where: { $0 is NotificationInfoMessageAttribute }) {
-                    return attributes
-                }
                 var attributes = attributes
-                attributes.append(NotificationInfoMessageAttribute(flags: .muted))
+                if withoutSound && !attributes.contains(where: { $0 is NotificationInfoMessageAttribute }) {
+                    attributes.append(NotificationInfoMessageAttribute(flags: .muted))
+                }
+                if delayed && !attributes.contains(where: { $0 is OutgoingScheduleInfoMessageAttribute }) {
+                    attributes.append(OutgoingScheduleInfoMessageAttribute(scheduleTime: scheduleTime, repeatPeriod: nil))
+                }
                 return attributes
             }
         }

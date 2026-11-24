@@ -312,6 +312,10 @@ extension ReplayContext {
     }
     
     func applyUpdateMinAvailableMessage(_ id: MessageId) {
+        if MetaGramSettings.get(.keepClearedHistory) {
+            // MetaGram "Keep Cleared Chats": the history cleared on the server stays on this device
+            return
+        }
         if let message = transaction.getMessage(id) {
             updatePeerChatInclusionWithMinTimestamp(transaction: transaction, id: id.peerId, minTimestamp: message.timestamp, forceRootGroupIfNotExists: false)
         }

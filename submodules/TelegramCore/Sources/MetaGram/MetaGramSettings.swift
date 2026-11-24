@@ -69,6 +69,12 @@ public enum MetaGramSettings {
         case disableLinkWarning = "metagram.general.disableLinkWarning"
         /// Strip "zalgo" combining marks from message texts.
         case filterZalgo = "metagram.general.filterZalgo"
+        /// Present the session as an Android device (read by MtProtoKit's MTApiEnvironment; applies after a restart).
+        case spoofAndroid = "metagram.general.spoofAndroid"
+        /// Send messages about 12 seconds later, as scheduled messages, so they can still be cancelled.
+        case delayedSend = "metagram.chats.delayedSend"
+        /// Clearing the whole chat by the other side does not remove it here.
+        case keepClearedHistory = "metagram.spy.keepClearedHistory"
 
         // Appearance
         /// Hide names, phone numbers and avatars of chats in lists (for screen sharing).

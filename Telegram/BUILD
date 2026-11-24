@@ -328,18 +328,26 @@ filegroup(
 )
 
 alternate_icon_folders = [
-    "BlackIcon",
-    "BlackClassicIcon",
-    "BlackFilledIcon",
-    "BlueIcon",
-    "BlueClassicIcon",
-    "BlueFilledIcon",
-    "WhiteFilledIcon",
-    "New1",
-    "New2",
-    "Premium",
-    "PremiumBlack",
-    "PremiumTurbo",
+    "MGDefault",
+    "MGLight",
+    "MGNeon",
+    "MGGold",
+    "MGPink",
+    "MGOcean",
+    "MGPeaks",
+    "MGGhost",
+    "MGGhostnight",
+    "MGMoon",
+    "MGAurora",
+    "MGSleepy",
+    "MGEye",
+    "MGSpark",
+    "MGSunset",
+    "MGPlanet",
+    "MGBubble",
+    "MGShadow",
+    "MGMask",
+    "MGRing",
 ]
 
 composer_icon_folders = ["Telegram"]

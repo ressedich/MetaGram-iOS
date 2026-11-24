@@ -1356,6 +1356,30 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
             }
         }
         
+        if let author = message.author, author.id != context.account.peerId, message.flags.contains(.Incoming) {
+            let authorKey = "\(author.id.toInt64())"
+            let isShadowBanned = MetaGramSettings.list(.shadowBanned).contains(authorKey)
+            let isRussianMenu = chatPresentationInterfaceState.strings.baseLanguageCode.hasPrefix("ru")
+            let banTitle: String
+            if isShadowBanned {
+                banTitle = isRussianMenu ? "Убрать из теневого бана" : "Remove Shadow Ban"
+            } else {
+                banTitle = isRussianMenu ? "Теневой бан" : "Shadow Ban"
+            }
+            actions.append(.action(ContextMenuActionItem(text: banTitle, icon: { theme in
+                return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Restrict"), color: theme.actionSheet.primaryTextColor)
+            }, action: { _, f in
+                var bannedList = MetaGramSettings.list(.shadowBanned)
+                if isShadowBanned {
+                    bannedList.removeAll(where: { $0 == authorKey })
+                } else {
+                    bannedList.append(authorKey)
+                }
+                MetaGramSettings.setList(.shadowBanned, bannedList)
+                f(.dismissWithoutContent)
+            })))
+        }
+
         let metaGramEdits = context.engine.messages.metaGramEditHistory(messageId: message.id)
         if !metaGramEdits.isEmpty {
             let isRussian = chatPresentationInterfaceState.strings.baseLanguageCode.hasPrefix("ru")

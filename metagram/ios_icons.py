@@ -81,6 +81,54 @@ def update_icon_composer():
     j.write_text(text, encoding="utf-8", newline="\n")
 
 
+def alt_icon_name(icon):
+    return "MG" + icon["key"][:1].upper() + icon["key"][1:]
+
+
+def update_alternate_icons():
+    """The icons offered in Settings > Appearance > App Icon: one <Name>.alticon folder per
+    MetaGram icon (rules_apple's alternate_icons names each by its folder), the folder list
+    in Telegram/BUILD and the picker's list in AppDelegate.swift."""
+    import shutil
+    for folder in APP.glob("*.alticon"):
+        shutil.rmtree(folder)
+    names = []
+    for icon in ICONS:
+        name = alt_icon_name(icon)
+        folder = APP / f"{name}.alticon"
+        folder.mkdir()
+        square = svg(icon, rounded=False)
+        for scale, size in ((2, 120), (3, 180)):
+            data = resvg_py.svg_to_bytes(svg_string=square, width=size, height=size)
+            Image.open(io.BytesIO(bytes(data))).convert("RGB").save(folder / f"{name}@{scale}x.png")
+        names.append(name)
+
+    build = ROOT / "Telegram/BUILD"
+    text = build.read_bytes().decode("utf-8")
+    nl = "\r\n" if "\r\n" in text else "\n"
+    listing = "alternate_icon_folders = [" + nl + "".join(f'    "{n}",{nl}' for n in names) + "]"
+    text, n = re.subn(r"alternate_icon_folders = \[.*?\]", lambda m: listing, text, count=1, flags=re.S)
+    assert n == 1, "Telegram/BUILD: alternate_icon_folders not found"
+    build.write_bytes(text.encode("utf-8"))
+
+    delegate = ROOT / "submodules/TelegramUI/Sources/AppDelegate.swift"
+    text = delegate.read_bytes().decode("utf-8")
+    nl = "\r\n" if "\r\n" in text else "\n"
+    entries = []
+    for i, n in enumerate(names):
+        default = ", isDefault: true" if i == 0 else ""
+        entries.append(f'                    PresentationAppIcon(name: "{n}", imageName: "{n}"{default})')
+    block = ("                let icons: [PresentationAppIcon] = [" + nl
+             + ("," + nl).join(entries) + nl
+             + "                ]" + nl
+             + "                return icons")
+    text, n = re.subn(r"                (var|let) icons(: \[PresentationAppIcon\])? = \[.*?                return icons",
+                      lambda m: block, text, count=1, flags=re.S)
+    assert n == 1, "AppDelegate.swift: icon list not found"
+    delegate.write_bytes(text.encode("utf-8"))
+    return names
+
+
 def main():
     count = 0
     for path in icon_pngs():
@@ -91,7 +139,8 @@ def main():
         render(size[0]).save(path)
         count += 1
     update_icon_composer()
-    print(f"{count} PNG icons replaced, Telegram.icon updated")
+    names = update_alternate_icons()
+    print(f"{count} PNG icons replaced, Telegram.icon updated, {len(names)} alternate icons")
 
 
 if __name__ == "__main__":

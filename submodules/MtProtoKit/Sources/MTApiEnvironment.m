@@ -392,7 +392,13 @@ static NSData *base64_decode(NSString *str) {
         NSProcessInfo *pInfo = [NSProcessInfo processInfo];
         _systemVersion = [[[pInfo operatingSystemVersionString] componentsSeparatedByString:@" "] objectAtIndex:1];
 #endif
-        
+        // MetaGram "Spoof Client as Android" (MetaGramSettings key in TelegramCore): the session shows up
+        // as an Android device. Set here so every copy made by the withUpdated... methods keeps it.
+        if ([[NSUserDefaults standardUserDefaults] boolForKey:@"metagram.general.spoofAndroid"]) {
+            _deviceModel = @"Samsung Galaxy S24 Ultra";
+            _systemVersion = @"SDK 35";
+        }
+
 NSString *suffix = @"";
 #if TARGET_OS_OSX
         NSString *value = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"SOURCE"];

@@ -560,6 +560,10 @@ public final class AccountContextImpl: AccountContext {
             strongSelf.tonGiftStickersPromise.set(.single(stickers))
         })
         
+        if MetaGramSettings.get(.hideFromBlocked) {
+            MetaGramBlockedPeers.track(account: account)
+        }
+
         self.userLimitsConfigurationDisposable = (self.engine.data.subscribe(TelegramEngine.EngineData.Item.Peer.Peer(id: account.peerId))
         |> mapToSignal { peer -> Signal<(Bool, EngineConfiguration.UserLimits), NoError> in
             let isPremium = (peer?.isPremium ?? false) || MetaGramSettings.get(.localPremium)

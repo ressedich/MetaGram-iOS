@@ -27,6 +27,9 @@ public enum MetaGramMessageFilter {
             if !banned.isEmpty && banned.contains("\(authorId.toInt64())") {
                 return true
             }
+            if MetaGramSettings.get(.hideFromBlocked) && MetaGramBlockedPeers.contains(authorId) {
+                return true
+            }
         }
         if MetaGramSettings.get(.enableFilters) && !message.text.isEmpty {
             let text = message.text
@@ -38,5 +41,27 @@ public enum MetaGramMessageFilter {
             }
         }
         return false
+    }
+}
+
+/// The account's blocked users, for "Hide from Blocked Users" (first page of the server's list).
+public enum MetaGramBlockedPeers {
+    private static let ids = Atomic<Set<Int64>>(value: Set())
+    private static let tracking = Atomic<(context: BlockedPeersContext, disposable: Disposable)?>(value: nil)
+
+    /// Starts loading the blocked list of `account`; call on the main queue.
+    public static func track(account: Account) {
+        let context = BlockedPeersContext(account: account, subject: .blocked)
+        let disposable = context.state.start(next: { state in
+            let blocked = Set(state.peers.map { $0.peerId.toInt64() })
+            let _ = ids.swap(blocked)
+        })
+        if let previous = tracking.swap((context: context, disposable: disposable)) {
+            previous.disposable.dispose()
+        }
+    }
+
+    static func contains(_ peerId: PeerId) -> Bool {
+        return ids.with { $0.contains(peerId.toInt64()) }
     }
 }

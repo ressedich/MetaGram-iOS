@@ -185,6 +185,10 @@ func chatHistoryEntriesForView(
         if MetaGramMessageFilter.shouldHide(message) {
             continue
         }
+        if MetaGramSettings.get(.filterZalgo), let cleanedText = MetaGramZalgo.clean(message.text) {
+            // Formatting offsets no longer match the shortened text, so it is shown plain
+            message = message.withUpdatedText(cleanedText).withUpdatedAttributes(message.attributes.filter { !($0 is TextEntitiesMessageAttribute) })
+        }
 
         if case let .replyThread(replyThreadMessage) = location, replyThreadMessage.isForumPost {
             if isUndisplayedForumTopicRoot(message, location: location, additionalData: view.additionalData) {

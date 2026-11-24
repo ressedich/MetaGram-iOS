@@ -62,11 +62,13 @@ private let metaGramCatalog: [MetaGramGroup] = [
         MetaGramOption(key: .goOfflineAutomatically, en: "Go Offline Automatically", ru: "Автоматически уходить в офлайн"),
         MetaGramOption(key: .readOnInteract, en: "Read on Interact", ru: "Читать при ответе"),
         MetaGramOption(key: .sendWithoutSound, en: "Send without Sound", ru: "Отправлять без звука"),
+        MetaGramOption(key: .delayedSend, en: "Delayed Send (~12 s)", ru: "Отложенная отправка (~12 с)"),
     ], footerEn: "Messages you read stay unread for the sender, and nobody sees you online or typing. \"Read on Interact\" marks a chat read when you reply or react in it.", footerRu: "Прочитанные сообщения остаются непрочитанными у отправителя, а «в сети» и «печатает» никто не видит. «Читать при ответе» отмечает чат прочитанным, когда вы отвечаете или ставите реакцию."),
     MetaGramGroup(en: "SPY ESSENTIALS", ru: "СЛЕЖКА", options: [
         MetaGramOption(key: .saveDeletedMessages, en: "Save Deleted Messages", ru: "Сохранять удалённые сообщения"),
         MetaGramOption(key: .saveEditsHistory, en: "Save Edits History", ru: "Сохранять историю правок"),
         MetaGramOption(key: .saveInBotDialogs, en: "Save in Bot Dialogs", ru: "Сохранять в чатах с ботами"),
+        MetaGramOption(key: .keepClearedHistory, en: "Keep Cleared Chats", ru: "Не очищать чат у себя"),
     ], footerEn: "Messages deleted by others stay in the chat marked \"deleted\". Earlier versions of edited messages open from the message menu. Only what reached this device is kept.", footerRu: "Сообщения, удалённые собеседником, остаются в чате с пометкой «удалено». Прежние версии изменённых сообщений — в меню сообщения, пункт «История правок». Сохраняется только то, что успело прийти на устройство."),
     MetaGramGroup(en: "CHATS", ru: "ЧАТЫ", options: [
         MetaGramOption(key: .showPeerId, en: "Show Peer ID", ru: "Показывать ID"),
@@ -87,6 +89,7 @@ private let metaGramCatalog: [MetaGramGroup] = [
         MetaGramOption(key: .hideSimilarChannels, en: "Disable Similar Channels", ru: "Без похожих каналов"),
         MetaGramOption(key: .disableLinkWarning, en: "Disable Open Link Warning", ru: "Без предупреждения о ссылках"),
         MetaGramOption(key: .filterZalgo, en: "Filter Zalgo", ru: "Фильтровать «залго»"),
+        MetaGramOption(key: .spoofAndroid, en: "Spoof Client as Android", ru: "Маскироваться под Android"),
     ]),
     MetaGramGroup(en: "APPEARANCE", ru: "ВНЕШНИЙ ВИД", options: [
         MetaGramOption(key: .streamerMode, en: "Streamer Mode", ru: "Режим стримера"),
@@ -97,6 +100,7 @@ private let metaGramCatalog: [MetaGramGroup] = [
     ], footerEn: "Streamer Mode hides chat names and message previews in the chat list.", footerRu: "Режим стримера скрывает названия чатов и тексты сообщений в списке чатов."),
     MetaGramGroup(en: "FILTERS", ru: "ФИЛЬТРЫ", options: [
         MetaGramOption(key: .enableFilters, en: "Enable Filters", ru: "Включить фильтры"),
+        MetaGramOption(key: .hideFromBlocked, en: "Hide from Blocked Users", ru: "Скрывать от заблокированных"),
     ], actions: [
         MetaGramActionOption(action: .messageFilters, en: "Message Filters", ru: "Фильтры сообщений"),
         MetaGramActionOption(action: .shadowBanned, en: "Shadow Ban", ru: "Теневой бан"),

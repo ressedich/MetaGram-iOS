@@ -759,7 +759,7 @@ private func opportunisticallyTransformOutgoingMedia(network: Network, postbox: 
 }
 
 public func enqueueMessages(account: Account, peerId: PeerId, messages: [EnqueueMessage]) -> Signal<[MessageId?], NoError> {
-    let preparedMessages = MetaGramSend.prepare(messages)
+    let preparedMessages = MetaGramSend.prepare(messages, peerId: peerId)
     MetaGramReadOnInteract.readChat(account: account, peerId: peerId)
     let signal: Signal<[(Bool, EnqueueMessage)], NoError>
     if let transformOutgoingMessageMedia = account.transformOutgoingMessageMedia {

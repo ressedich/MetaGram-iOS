@@ -150,7 +150,11 @@ func handleTextLinkActionImpl(context: AccountContext, peerId: EnginePeer.Id?, n
                     if parsedConcealed || loginPartUrl != nil {
                         concealed = true
                     }
-                    
+                    if concealed && loginPartUrl == nil && MetaGramSettings.get(.disableLinkWarning) {
+                        // MetaGram: open hidden links without asking; links with a login part still ask
+                        concealed = false
+                    }
+
                     if concealed {
                         // For a login part the prompt shows the host the link really opens. The external-URL opener
                         // asks about such a link as well, so accepting it here tells the opener it has been confirmed.
