@@ -402,6 +402,9 @@ public extension Peer {
     }
     
     var emojiStatus: PeerEmojiStatus? {
+        if MetaGramSettings.get(.hidePremiumStatuses) {
+            return nil
+        }
         switch self {
         case let user as TelegramUser:
             return user.emojiStatus

@@ -45,7 +45,13 @@ private final class AccountPresenceManagerImpl {
     private func updatePresence(_ isOnline: Bool) {
         let reportOnline = isOnline && !MetaGramSettings.get(.dontSendOnline)
         let request: Signal<Api.Bool, MTRpcError>
-        if reportOnline {
+        if reportOnline && MetaGramSettings.get(.goOfflineAutomatically) {
+            // MetaGram: show up online for a moment (the app was opened), then report offline at once
+            self.onlineTimer?.invalidate()
+            self.onlineTimer = nil
+            request = self.network.request(Api.functions.account.updateStatus(offline: .boolFalse))
+            |> then(self.network.request(Api.functions.account.updateStatus(offline: .boolTrue)))
+        } else if reportOnline {
             let timer = SignalKitTimer(timeout: 30.0, repeat: false, completion: { [weak self] in
                 guard let strongSelf = self else {
                     return

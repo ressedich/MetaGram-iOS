@@ -262,6 +262,12 @@ public class ChatMessageReplyInfoNode: ASDisplayNode {
             if arguments.isSummarized {
                 authorNameColor = nil
             }
+            if MetaGramSettings.get(.disableColorfulReplies) {
+                authorNameColor = nil
+                dashSecondaryColor = nil
+                dashTertiaryColor = nil
+                giftEmojiFileId = nil
+            }
             
             switch arguments.type {
             case let .bubble(incoming):

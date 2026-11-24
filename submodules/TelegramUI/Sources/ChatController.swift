@@ -2473,7 +2473,16 @@ public final class ChatControllerImpl: TelegramBaseController, ChatController, G
             guard let strongSelf = self else {
                 return false
             }
-            
+
+            if MetaGramSettings.get(.confirmStickers) && !MetaGramSendConfirmation.isConfirmed {
+                MetaGramSendConfirmation.present(context: strongSelf.context, controller: strongSelf, en: "Send this sticker?", ru: "Отправить стикер?", confirm: { [weak self] in
+                    MetaGramSendConfirmation.runConfirmed {
+                        let _ = self?.controllerInteraction?.sendSticker(fileReference, silentPosting, schedule, query, clearInput, sourceView, sourceRect, sourceLayer, bubbleUpEmojiOrStickersets)
+                    }
+                })
+                return true
+            }
+
             if let _ = strongSelf.presentationInterfaceState.slowmodeState, strongSelf.presentationInterfaceState.subject != .scheduledMessages {
                 if let sourceView, let sourceRect {
                     strongSelf.interfaceInteraction?.displaySlowmodeTooltip(sourceView, sourceRect)
@@ -2749,6 +2758,14 @@ public final class ChatControllerImpl: TelegramBaseController, ChatController, G
             }
         }, sendGif: { [weak self] fileReference, sourceView, sourceRect, silentPosting, schedule in
             if let strongSelf = self {
+                if MetaGramSettings.get(.confirmGifs) && !MetaGramSendConfirmation.isConfirmed {
+                    MetaGramSendConfirmation.present(context: strongSelf.context, controller: strongSelf, en: "Send this GIF?", ru: "Отправить GIF?", confirm: { [weak self] in
+                        MetaGramSendConfirmation.runConfirmed {
+                            let _ = self?.controllerInteraction?.sendGif(fileReference, sourceView, sourceRect, silentPosting, schedule)
+                        }
+                    })
+                    return true
+                }
                 if let _ = strongSelf.presentationInterfaceState.slowmodeState, strongSelf.presentationInterfaceState.subject != .scheduledMessages {
                     strongSelf.interfaceInteraction?.displaySlowmodeTooltip(sourceView, sourceRect)
                     return false

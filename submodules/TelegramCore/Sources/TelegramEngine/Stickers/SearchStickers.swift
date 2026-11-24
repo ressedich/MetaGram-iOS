@@ -718,6 +718,9 @@ public final class EmojiSearchContext {
 }
 
 func _internal_randomGreetingSticker(account: Account) -> Signal<FoundStickerItem?, NoError> {
+    if MetaGramSettings.get(.disableGreetingSticker) {
+        return .single(nil)
+    }
     let key: PostboxViewKey = .orderedItemList(id: Namespaces.OrderedItemList.CloudGreetingStickers)
     return account.postbox.combinedView(keys: [key])
     |> map { views -> [OrderedItemListEntry]? in

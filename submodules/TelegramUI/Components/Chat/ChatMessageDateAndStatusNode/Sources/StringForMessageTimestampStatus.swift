@@ -163,13 +163,18 @@ public func stringForMessageTimestampStatus(
         timestamp = orignalDate
     }
     
-    var dateText = stringForMessageTimestamp(timestamp: timestamp, dateTimeFormat: dateTimeFormat)
+    var dateText = stringForMessageTimestamp(timestamp: timestamp, dateTimeFormat: dateTimeFormat, withSeconds: MetaGramSettings.get(.showMessageSeconds))
     if timestamp == scheduleWhenOnlineTimestamp {
         dateText = "         "
     }
 
     if message.metaGramDeletedDate != nil {
-        let deletedLabel = strings.baseLanguageCode.hasPrefix("ru") ? "удалено" : "deleted"
+        let deletedLabel: String
+        if MetaGramSettings.get(.markWithIcons) {
+            deletedLabel = "🗑"
+        } else {
+            deletedLabel = strings.baseLanguageCode.hasPrefix("ru") ? "удалено" : "deleted"
+        }
         dateText = "\(deletedLabel) \(dateText)"
     }
 

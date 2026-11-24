@@ -953,6 +953,24 @@ func infoItems(
         }
     }
     
+    if MetaGramSettings.get(.showPeerId), let peer = data.peer {
+        // Bot API style ids: groups are negative, channels and supergroups carry the -100 prefix
+        let rawId = peer.id.id._internalGetInt64Value()
+        let idText: String
+        switch peer {
+        case .channel:
+            idText = "-100\(rawId)"
+        case .legacyGroup:
+            idText = "-\(rawId)"
+        default:
+            idText = "\(rawId)"
+        }
+        items[.peerInfo]!.append(PeerInfoScreenLabeledValueItem(id: AnyHashable("metagram.peerId"), label: "ID", text: idText, textColor: .primary, action: { _, _ in
+            UIPasteboard.general.string = idText
+        }, requestLayout: { _ in
+        }))
+    }
+
     var result: [(AnyHashable, [PeerInfoScreenItem])] = []
     for section in InfoSection.allCases {
         if let sectionItems = items[section], !sectionItems.isEmpty {

@@ -3704,7 +3704,13 @@ public class ChatListItemNode: ItemListRevealOptionsItemNode {
                     currentPinnedIconImage = PresentationResourcesChatList.badgeBackgroundPinned(item.presentationData.theme, diameter: badgeDiameter)
                 }
             }
-            
+            if MetaGramSettings.get(.hideNotificationCounters) {
+                badgeContent = .none
+                mentionBadgeContent = .none
+                currentBadgeBackgroundImage = nil
+                currentMentionBadgeImage = nil
+            }
+
             let isMuted = isRemovedFromTotalUnreadCount
             if isMuted {
                 currentMutedIconImage = PresentationResourcesChatList.mutedIcon(item.presentationData.theme)
@@ -4009,6 +4015,20 @@ public class ChatListItemNode: ItemListRevealOptionsItemNode {
             if let communitySource, case .authorLine = communitySource.placement {
                 forumThreads.append((id: communitySource.peer.id.toInt64(), threadPeer: nil, title: NSAttributedString(string: communitySource.title, font: textFont, textColor: theme.titleColor), iconId: nil, iconColor: nil))
                 authorTopicArrowColor = theme.messageTextColor
+            }
+
+            if MetaGramSettings.get(.streamerMode) {
+                // MetaGram Streamer Mode: no names or message texts in the chat list
+                let hiddenText = "•••"
+                if effectiveAuthorTitle != nil {
+                    effectiveAuthorTitle = NSAttributedString(string: hiddenText, font: textFont, textColor: theme.authorNameColor)
+                }
+                if textAttributedString != nil {
+                    textAttributedString = NSAttributedString(string: hiddenText, font: textFont, textColor: theme.messageTextColor)
+                }
+                if titleAttributedString != nil {
+                    titleAttributedString = NSAttributedString(string: hiddenText, font: titleFont, textColor: theme.titleColor)
+                }
             }
 
             let (authorLayout, authorApply) = authorLayout(item.context, rawContentWidth - badgeSize, item.presentationData.theme, effectiveAuthorTitle, forumThreads, authorTopicArrowColor)

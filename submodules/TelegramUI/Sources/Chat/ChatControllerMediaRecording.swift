@@ -256,7 +256,11 @@ extension ChatControllerImpl {
         if let _ = self.presentationInterfaceState.slowmodeState, !isScheduledMessages {
             updatedAction = .preview
         }
-        
+        if MetaGramSettings.get(.confirmVoice), case .send = action {
+            // MetaGram "Send Confirmations": a released recording opens in preview instead of being sent
+            updatedAction = .preview
+        }
+
         var sendImmediately = false
         if let _ = self.presentationInterfaceState.sendPaidMessageStars, case .send = action {
             updatedAction = .preview
