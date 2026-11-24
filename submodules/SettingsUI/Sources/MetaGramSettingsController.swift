@@ -43,6 +43,7 @@ private enum MetaGramSettingsEntry: ItemListNodeEntry {
     case ghostFooter
     case spyHeader
     case saveDeleted(Bool)
+    case saveEdits(Bool)
     case spyFooter
     case otherHeader
     case disableAds(Bool)
@@ -51,7 +52,7 @@ private enum MetaGramSettingsEntry: ItemListNodeEntry {
         switch self {
         case .ghostHeader, .ghostMode, .option, .ghostFooter:
             return MetaGramSettingsSection.ghost.rawValue
-        case .spyHeader, .saveDeleted, .spyFooter:
+        case .spyHeader, .saveDeleted, .saveEdits, .spyFooter:
             return MetaGramSettingsSection.spy.rawValue
         case .otherHeader, .disableAds:
             return MetaGramSettingsSection.other.rawValue
@@ -72,8 +73,10 @@ private enum MetaGramSettingsEntry: ItemListNodeEntry {
             return 60
         case .saveDeleted:
             return 61
-        case .spyFooter:
+        case .saveEdits:
             return 62
+        case .spyFooter:
+            return 63
         case .otherHeader:
             return 100
         case .disableAds:
@@ -99,6 +102,8 @@ private enum MetaGramSettingsEntry: ItemListNodeEntry {
             return s.text("Disable Ads", "Отключить рекламу")
         case .saveDeletedMessages:
             return s.text("Save Deleted Messages", "Сохранять удалённые сообщения")
+        case .saveEditsHistory:
+            return s.text("Save Edits History", "Сохранять историю правок")
         }
     }
 
@@ -127,10 +132,14 @@ private enum MetaGramSettingsEntry: ItemListNodeEntry {
             return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: MetaGramSettingsEntry.title(.saveDeletedMessages, s), value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.setValue(.saveDeletedMessages, value)
             })
+        case let .saveEdits(value):
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: MetaGramSettingsEntry.title(.saveEditsHistory, s), value: value, sectionId: self.section, style: .blocks, updated: { value in
+                arguments.setValue(.saveEditsHistory, value)
+            })
         case .spyFooter:
             return ItemListTextItem(presentationData: presentationData, text: .plain(s.text(
-                "Messages deleted by others stay in the chat marked \"deleted\". Only messages that reached this device before deletion can be kept.",
-                "Сообщения, удалённые собеседником, остаются в чате с пометкой «удалено». Сохраняется только то, что успело прийти на устройство до удаления."
+                "Messages deleted by others stay in the chat marked \"deleted\". Earlier versions of edited messages open from the message menu. Only what reached this device is kept.",
+                "Сообщения, удалённые собеседником, остаются в чате с пометкой «удалено». Прежние версии изменённых сообщений — в меню сообщения, пункт «История правок». Сохраняется только то, что успело прийти на устройство."
             )), sectionId: self.section)
         case .otherHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: s.text("OTHER", "ПРОЧЕЕ"), sectionId: self.section)
@@ -152,6 +161,7 @@ private func metaGramSettingsEntries() -> [MetaGramSettingsEntry] {
     entries.append(.ghostFooter)
     entries.append(.spyHeader)
     entries.append(.saveDeleted(MetaGramSettings.get(.saveDeletedMessages)))
+    entries.append(.saveEdits(MetaGramSettings.get(.saveEditsHistory)))
     entries.append(.spyFooter)
     entries.append(.otherHeader)
     entries.append(.disableAds(MetaGramSettings.get(.disableAds)))

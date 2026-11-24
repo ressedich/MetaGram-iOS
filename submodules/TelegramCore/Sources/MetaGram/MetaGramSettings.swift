@@ -17,6 +17,8 @@ public enum MetaGramSettings {
         case disableAds = "metagram.disableAds"
         /// Keep messages deleted by others, marked as deleted.
         case saveDeletedMessages = "metagram.spy.saveDeletedMessages"
+        /// Keep earlier versions of edited messages.
+        case saveEditsHistory = "metagram.spy.saveEditsHistory"
     }
 
     /// The options the "Ghost Mode" switch turns on and off together.

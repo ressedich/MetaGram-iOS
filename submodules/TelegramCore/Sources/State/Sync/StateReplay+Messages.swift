@@ -327,6 +327,7 @@ extension ReplayContext {
     func applyEditMessage(_ id: MessageId, _ message: StoreMessage) {
         var generatedEvent: (reactionAuthor: Peer, reaction: MessageReaction.Reaction, message: Message, timestamp: Int32)?
         transaction.updateMessage(id, update: { previousMessage in
+            MetaGramEditHistory.recordEdit(mediaBox: mediaBox, previous: previousMessage, newText: message.text)
             let peers: [PeerId:Peer] = previousMessage.peers.reduce([:], { current, value in
                 var current = current
                 current[value.0] = value.1

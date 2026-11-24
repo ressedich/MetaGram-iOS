@@ -1356,6 +1356,33 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
             }
         }
         
+        let metaGramEdits = context.engine.messages.metaGramEditHistory(messageId: message.id)
+        if !metaGramEdits.isEmpty {
+            let isRussian = chatPresentationInterfaceState.strings.baseLanguageCode.hasPrefix("ru")
+            actions.append(.action(ContextMenuActionItem(text: isRussian ? "История правок" : "Edit History", icon: { theme in
+                return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Edit"), color: theme.actionSheet.primaryTextColor)
+            }, action: { c, _ in
+                c?.dismiss(completion: {
+                    let presentationData = context.sharedContext.currentPresentationData.with { $0 }
+                    let formatter = DateFormatter()
+                    formatter.dateStyle = .short
+                    formatter.timeStyle = .short
+                    let versions = metaGramEdits.reversed().map { entry -> String in
+                        let date = formatter.string(from: Date(timeIntervalSince1970: TimeInterval(entry.date)))
+                        return "\(date)\n\(entry.text.isEmpty ? "—" : entry.text)"
+                    }
+                    controllerInteraction.presentController(textAlertController(
+                        context: context,
+                        title: isRussian ? "История правок" : "Edit History",
+                        text: versions.joined(separator: "\n\n"),
+                        actions: [
+                            TextAlertAction(type: .defaultAction, title: presentationData.strings.Common_OK, action: {})
+                        ]
+                    ), nil)
+                })
+            })))
+        }
+
         let isCopyProtected = chatPresentationInterfaceState.copyProtectionEnabled || message.isCopyProtected()
         if !messageText.isEmpty || richMessageMarkdown != nil || (resourceAvailable && isImage) || diceEmoji != nil {
             if !isExpired {
