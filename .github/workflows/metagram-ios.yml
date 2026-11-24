@@ -1,0 +1,99 @@
+name: MetaGram iOS
+
+# Builds an unsigned MetaGram.ipa (release, arm64) with the repository's test
+# certificates. Sign it yourself (Sideloadly / AltStore) before installing.
+# The Bazel cache is saved even when a run fails, so a re-run continues faster.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - 'metagram/*.html'
+
+concurrency:
+  group: metagram-ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: iOS (unsigned .ipa)
+    runs-on: xcode-27
+    timeout-minutes: 355
+
+    env:
+      SOURCE_DIR: /Users/Shared/telegram-ios
+      BAZEL_USER_ROOT: /private/var/tmp/_bazel_containerhost
+      CACHE_DIR: /Users/Shared/telegram-bazel-cache
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Select Xcode.
+        run: |
+          XCODE_VERSION=$(python3 -c 'import json;print(json.load(open("versions.json"))["xcode"])')
+          sudo xcode-select -s /Applications/Xcode_$XCODE_VERSION.app/Contents/Developer
+          xcodebuild -version
+
+      - name: Move sources to a stable path.
+        # source paths end up in the binary, so they must not change between builds
+        run: |
+          sudo mkdir -p /Users/Shared
+          sudo chown "$USER" /Users/Shared
+          cp -R "$GITHUB_WORKSPACE" /Users/Shared/
+          mv "/Users/Shared/$(basename "$GITHUB_WORKSPACE")" "$SOURCE_DIR"
+          mkdir -p "$CACHE_DIR"
+
+      - name: Restore Bazel cache.
+        uses: actions/cache/restore@v4
+        with:
+          path: /Users/Shared/telegram-bazel-cache
+          key: bazel-ios-${{ hashFiles('versions.json', 'MODULE.bazel.lock') }}-${{ github.run_id }}
+          restore-keys: |
+            bazel-ios-${{ hashFiles('versions.json', 'MODULE.bazel.lock') }}-
+            bazel-ios-
+
+      - name: Build MetaGram.
+        id: build
+        timeout-minutes: 320
+        run: |
+          set -x
+          cd "$SOURCE_DIR"
+          BUILD_NUMBER="$(( $(git rev-list --count HEAD) + $(cat build_number_offset) ))"
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
+
+          python3 build-system/Make/ImportCertificates.py --path build-system/fake-codesigning/certs
+          python3 -u build-system/Make/Make.py \
+            --bazelUserRoot="$BAZEL_USER_ROOT" \
+            --cacheDir="$CACHE_DIR" \
+            --overrideXcodeVersion \
+            build \
+            --configurationPath="build-system/appstore-configuration.json" \
+            --codesigningInformationPath=build-system/fake-codesigning \
+            --configuration=release_arm64 \
+            --buildNumber="$BUILD_NUMBER"
+
+          mkdir -p "$GITHUB_WORKSPACE/artifact"
+          for f in bazel-out/applebin_ios-ios_arm*-opt-ST-*/bin/Telegram/Telegram.ipa; do
+            cp "$f" "$GITHUB_WORKSPACE/artifact/MetaGram.ipa"
+          done
+          ls -la "$GITHUB_WORKSPACE/artifact"
+
+      - name: Save Bazel cache.
+        if: always() && steps.build.outcome != 'skipped'
+        uses: actions/cache/save@v4
+        with:
+          path: /Users/Shared/telegram-bazel-cache
+          key: bazel-ios-${{ hashFiles('versions.json', 'MODULE.bazel.lock') }}-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Upload MetaGram.ipa.
+        uses: actions/upload-artifact@v4
+        with:
+          name: MetaGram-iOS-${{ env.BUILD_NUMBER }}
+          path: artifact/MetaGram.ipa
+          retention-days: 30

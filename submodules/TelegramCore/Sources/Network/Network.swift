@@ -1373,6 +1373,9 @@ public final class Network: NSObject {
     }
     
     func requestWithAdditionalInfo<T>(_ data: (FunctionDescription, Buffer, DeserializeFunctionResponse<T>), info: NetworkRequestAdditionalInfo, tag: NetworkRequestDependencyTag? = nil, automaticFloodWait: Bool = true, onFloodWaitError: ((String) -> Void)? = nil) -> Signal<NetworkRequestResult<T>, MTRpcError> {
+        if MetaGramSettings.blocksRequest(named: data.0.name) {
+            return .complete()
+        }
         let requestService = self.requestService
         return Signal { [requestService] subscriber in
             let request = NetworkEngineRequest(
@@ -1419,6 +1422,9 @@ public final class Network: NSObject {
     }
     
     func request<T>(_ data: (FunctionDescription, Buffer, DeserializeFunctionResponse<T>), tag: NetworkRequestDependencyTag? = nil, automaticFloodWait: Bool = true, onFloodWaitError: ((String) -> Void)? = nil) -> Signal<T, MTRpcError> {
+        if MetaGramSettings.blocksRequest(named: data.0.name) {
+            return .complete()
+        }
         let requestService = self.requestService
         return Signal { [requestService] subscriber in
             let request = NetworkEngineRequest(
