@@ -73,7 +73,8 @@ config_setting(
 
 bool_flag(
     name = "disableExtensions",
-    build_setting_default = False,
+    # MetaGram: sideloaded with a free Apple ID, so no app extensions by default
+    build_setting_default = True,
     visibility = ["//visibility:public"],
 )
 

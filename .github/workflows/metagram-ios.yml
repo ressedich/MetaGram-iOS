@@ -85,12 +85,15 @@ jobs:
           echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
 
           python3 build-system/Make/ImportCertificates.py --path build-system/fake-codesigning/certs
+          # Sideload-friendly: no app extensions (//Telegram:disableExtensions defaults to True in
+          # Telegram/BUILD; a free Apple ID gets few App IDs) and no iCloud / Siri entitlements
+          # (metagram-configuration.json; not available to a free Apple ID).
           python3 -u build-system/Make/Make.py \
             --bazelUserRoot="$BAZEL_USER_ROOT" \
             --cacheDir="$CACHE_DIR" \
             --overrideXcodeVersion \
             build \
-            --configurationPath="build-system/appstore-configuration.json" \
+            --configurationPath="build-system/metagram-configuration.json" \
             --codesigningInformationPath=build-system/fake-codesigning \
             --configuration=release_arm64 \
             --buildNumber="$BUILD_NUMBER"
