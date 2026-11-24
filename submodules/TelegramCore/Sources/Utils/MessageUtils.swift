@@ -535,7 +535,16 @@ public extension Message {
         }
     }
     
+    /// Copy protection as the client applies it: off while MetaGram bypasses it.
     func isCopyProtected() -> Bool {
+        if MetaGramSettings.isCopyProtectionBypassed {
+            return false
+        }
+        return self.isServerCopyProtected()
+    }
+
+    /// Copy protection as the server has it, whatever MetaGram's bypass says.
+    func isServerCopyProtected() -> Bool {
         if self.flags.contains(.CopyProtected) {
             return true
         } else if let group = self.peers[self.id.peerId] as? TelegramGroup, group.flags.contains(.copyProtectionEnabled) {

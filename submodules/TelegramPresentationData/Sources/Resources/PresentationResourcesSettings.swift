@@ -126,6 +126,17 @@ public struct PresentationResourcesSettings {
     public static let stickers = renderSettingsIcon(name: "Item List/Icons/Sticker", backgroundColors: [colorOrange])
     public static let notifications = renderSettingsIcon(name: "Item List/Icons/Notifications", backgroundColors: [colorRed])
     public static let security = renderSettingsIcon(name: "Item List/Icons/Privacy", backgroundColors: [colorGray])
+    
+    /// MetaGram's settings entry: the app's own icon, rounded like the other settings icons.
+    public static let metaGram = generateImage(CGSize(width: 30.0, height: 30.0), contextGenerator: { size, context in
+        let bounds = CGRect(origin: CGPoint(), size: size)
+        context.clear(bounds)
+        context.addPath(UIBezierPath(roundedRect: bounds, cornerRadius: 8.0).cgPath)
+        context.clip()
+        if let image = UIImage(bundleImageName: "Settings/MetaGramIcon"), let cgImage = image.cgImage {
+            context.draw(cgImage, in: bounds)
+        }
+    })
     public static let dataAndStorage = renderSettingsIcon(name: "Item List/Icons/Data", backgroundColors: [colorGreen])
     public static let appearance = renderSettingsIcon(name: "Item List/Icons/Appearance", backgroundColors: [colorLightBlue])
     public static let language = renderSettingsIcon(name: "Item List/Icons/Language", backgroundColors: [colorPurple])

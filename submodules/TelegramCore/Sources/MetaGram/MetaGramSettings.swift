@@ -75,6 +75,9 @@ public enum MetaGramSettings {
         case delayedSend = "metagram.chats.delayedSend"
         /// Clearing the whole chat by the other side does not remove it here.
         case keepClearedHistory = "metagram.spy.keepClearedHistory"
+        /// Ignore "Restrict saving content": forward, copy and save from protected chats. Protected messages are sent
+        /// as new messages with their media downloaded and uploaded again, since the server refuses to forward them.
+        case bypassCopyProtection = "metagram.spy.bypassCopyProtection"
 
         // Appearance
         /// Hide names, phone numbers and avatars of chats in lists (for screen sharing).
@@ -95,7 +98,7 @@ public enum MetaGramSettings {
     public static let ghostKeys: [Key] = [.dontReadMessages, .dontReadStories, .dontSendOnline, .dontSendTyping]
 
     /// Options that are on in a fresh install.
-    private static let defaultOn: Set<Key> = [.readOnInteract, .saveInBotDialogs, .translucentDeleted]
+    private static let defaultOn: Set<Key> = [.readOnInteract, .saveInBotDialogs, .translucentDeleted, .bypassCopyProtection]
 
     public static func get(_ key: Key) -> Bool {
         let defaults = UserDefaults.standard
@@ -107,6 +110,11 @@ public enum MetaGramSettings {
 
     public static func set(_ key: Key, _ value: Bool) {
         UserDefaults.standard.set(value, forKey: key.rawValue)
+    }
+
+    /// Whether the client ignores the server's copy protection ("Restrict saving content").
+    public static var isCopyProtectionBypassed: Bool {
+        return get(.bypassCopyProtection)
     }
 
     /// Ghost mode counts as on when every ghost option is on.

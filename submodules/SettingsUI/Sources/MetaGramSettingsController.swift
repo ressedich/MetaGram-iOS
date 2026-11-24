@@ -69,7 +69,8 @@ private let metaGramCatalog: [MetaGramGroup] = [
         MetaGramOption(key: .saveEditsHistory, en: "Save Edits History", ru: "Сохранять историю правок"),
         MetaGramOption(key: .saveInBotDialogs, en: "Save in Bot Dialogs", ru: "Сохранять в чатах с ботами"),
         MetaGramOption(key: .keepClearedHistory, en: "Keep Cleared Chats", ru: "Не очищать чат у себя"),
-    ], footerEn: "Messages deleted by others stay in the chat marked \"deleted\". Earlier versions of edited messages open from the message menu. Only what reached this device is kept.", footerRu: "Сообщения, удалённые собеседником, остаются в чате с пометкой «удалено». Прежние версии изменённых сообщений — в меню сообщения, пункт «История правок». Сохраняется только то, что успело прийти на устройство."),
+        MetaGramOption(key: .bypassCopyProtection, en: "Bypass Copy Protection", ru: "Обходить запрет пересылки"),
+    ], footerEn: "Messages deleted by others stay in the chat marked \"deleted\". Earlier versions of edited messages open from the message menu. Only what reached this device is kept. With copy protection bypassed, protected messages can be forwarded, copied and saved; they are sent as your own messages, with their media downloaded and uploaded again.", footerRu: "Сообщения, удалённые собеседником, остаются в чате с пометкой «удалено». Прежние версии изменённых сообщений — в меню сообщения, пункт «История правок». Сохраняется только то, что успело прийти на устройство. С обходом запрета пересылки защищённые сообщения можно пересылать, копировать и сохранять: они уходят как ваши собственные сообщения, а медиа скачивается и загружается заново."),
     MetaGramGroup(en: "CHATS", ru: "ЧАТЫ", options: [
         MetaGramOption(key: .showPeerId, en: "Show Peer ID", ru: "Показывать ID"),
         MetaGramOption(key: .showMessageSeconds, en: "Show Message Seconds", ru: "Секунды во времени сообщений"),

@@ -18,6 +18,7 @@ enum SettingsSection: Int, CaseIterable {
     case edit
     case phone
     case accounts
+    case metaGram
     case myProfile
     case wallet
     case proxy
@@ -149,6 +150,10 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
             }))
         }
         
+        items[.metaGram]!.append(PeerInfoScreenDisclosureItem(id: 0, text: "MetaGram", icon: PresentationResourcesSettings.metaGram, action: {
+            interaction.openSettings(.metaGram)
+        }))
+        
         items[.myProfile]!.append(PeerInfoScreenDisclosureItem(id: 0, text: presentationData.strings.Settings_MyProfile, icon: PresentationResourcesSettings.myProfile, action: {
             interaction.openSettings(.profile)
         }))
@@ -269,9 +274,6 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
     }))
     items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 3, text: presentationData.strings.Settings_Appearance, icon: PresentationResourcesSettings.appearance, action: {
         interaction.openSettings(.appearance)
-    }))
-    items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 7, text: "MetaGram", icon: PresentationResourcesSettings.security, action: {
-        interaction.openSettings(.metaGram)
     }))
     
     items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 6, label: .text(data.isPowerSavingEnabled == true ? presentationData.strings.Settings_PowerSavingOn : presentationData.strings.Settings_PowerSavingOff), text: presentationData.strings.Settings_PowerSaving, icon: PresentationResourcesSettings.powerSaving, action: {

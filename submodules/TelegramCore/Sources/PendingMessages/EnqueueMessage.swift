@@ -759,6 +759,14 @@ private func opportunisticallyTransformOutgoingMedia(network: Network, postbox: 
 }
 
 public func enqueueMessages(account: Account, peerId: PeerId, messages: [EnqueueMessage]) -> Signal<[MessageId?], NoError> {
+    // MetaGram: forwards of copy-protected messages become copies with re-uploaded media
+    return MetaGramProtectedForward.prepare(account: account, peerId: peerId, messages: messages)
+    |> mapToSignal { messages -> Signal<[MessageId?], NoError> in
+        return enqueuePreparedMessages(account: account, peerId: peerId, messages: messages)
+    }
+}
+
+private func enqueuePreparedMessages(account: Account, peerId: PeerId, messages: [EnqueueMessage]) -> Signal<[MessageId?], NoError> {
     let preparedMessages = MetaGramSend.prepare(messages, peerId: peerId)
     MetaGramReadOnInteract.readChat(account: account, peerId: peerId)
     let signal: Signal<[(Bool, EnqueueMessage)], NoError>
