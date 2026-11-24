@@ -167,7 +167,12 @@ public func stringForMessageTimestampStatus(
     if timestamp == scheduleWhenOnlineTimestamp {
         dateText = "         "
     }
-    
+
+    if message.metaGramDeletedDate != nil {
+        let deletedLabel = strings.baseLanguageCode.hasPrefix("ru") ? "удалено" : "deleted"
+        dateText = "\(deletedLabel) \(dateText)"
+    }
+
     if let repeatPeriod = message.scheduleRepeatPeriod {
         let repeatString: String
         switch repeatPeriod {

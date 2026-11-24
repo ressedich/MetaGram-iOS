@@ -274,6 +274,22 @@ extension ReplayContext {
     }
     
     func applyDeleteMessagesWithGlobalIds(_ ids: [Int32]) {
+        if MetaGramSettings.get(.saveDeletedMessages) {
+            // MetaGram keeps them: delete only what filterDeletion leaves (ids are resolved to stored messages)
+            let storedIds = transaction.messageIdsForGlobalIds(ids)
+            let toDelete = MetaGramDeletedMessages.filterDeletion(transaction: transaction, ids: storedIds)
+            if !toDelete.isEmpty {
+                var resourceIds: [MediaResourceId] = []
+                transaction.deleteMessages(toDelete, forEachMedia: { media in
+                    addMessageMediaResourceIdsToRemove(media: media, resourceIds: &resourceIds)
+                })
+                if !resourceIds.isEmpty {
+                    let _ = mediaBox.removeCachedResources(Array(Set(resourceIds)), force: true).start()
+                }
+                deletedMessageIds.append(contentsOf: toDelete.map { .messageId($0) })
+            }
+            return
+        }
         var resourceIds: [MediaResourceId] = []
         transaction.deleteMessagesWithGlobalIds(ids, forEachMedia: { media in
             addMessageMediaResourceIdsToRemove(media: media, resourceIds: &resourceIds)
@@ -285,10 +301,14 @@ extension ReplayContext {
     }
     
     func applyDeleteMessages(_ ids: [MessageId]) {
-        _internal_deleteMessages(transaction: transaction, mediaBox: mediaBox, ids: ids, manualAddMessageThreadStatsDifference: { id, add, remove in
+        let toDelete = MetaGramDeletedMessages.filterDeletion(transaction: transaction, ids: ids)
+        if toDelete.isEmpty {
+            return
+        }
+        _internal_deleteMessages(transaction: transaction, mediaBox: mediaBox, ids: toDelete, manualAddMessageThreadStatsDifference: { id, add, remove in
             self.addMessageThreadStatsDifference(threadKey: id, remove: remove, addedMessagePeer: nil, addedMessageId: nil, isOutgoing: false)
         })
-        deletedMessageIds.append(contentsOf: ids.map { .messageId($0) })
+        deletedMessageIds.append(contentsOf: toDelete.map { .messageId($0) })
     }
     
     func applyUpdateMinAvailableMessage(_ id: MessageId) {

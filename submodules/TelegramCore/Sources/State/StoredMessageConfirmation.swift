@@ -213,7 +213,7 @@ func confirmStoredMessages(accountPeerId: PeerId, postbox: Postbox, source: Fetc
 func deleteStoredMessagesAsReceivedDeletion(transaction: Transaction, mediaBox: MediaBox, ids: [MessageId]) -> [MessageId] {
     var regularIds: [MessageId] = []
     var channelIds: [MessageId] = []
-    for id in ids {
+    for id in MetaGramDeletedMessages.filterDeletion(transaction: transaction, ids: ids) {
         if id.peerId.namespace == Namespaces.Peer.CloudChannel {
             channelIds.append(id)
         } else {

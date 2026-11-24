@@ -15,6 +15,8 @@ public enum MetaGramSettings {
         case dontSendTyping = "metagram.ghost.dontSendTyping"
         /// Do not load sponsored messages in channels.
         case disableAds = "metagram.disableAds"
+        /// Keep messages deleted by others, marked as deleted.
+        case saveDeletedMessages = "metagram.spy.saveDeletedMessages"
     }
 
     /// The options the "Ghost Mode" switch turns on and off together.
