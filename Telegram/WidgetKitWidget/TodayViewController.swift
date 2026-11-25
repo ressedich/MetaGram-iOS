@@ -928,12 +928,24 @@ struct Static_AvatarsWidget: Widget {
 @main
 struct AllWidgetsEntryPoint {
     static func main() {
-        if #available(iOS 14.0, *) {
+        if #available(iOS 16.1, *) {
+            AllWidgetsWithLiveActivity.main()
+        } else if #available(iOS 14.0, *) {
             AllWidgets.main()
         } else {
             preconditionFailure()
         }
     }
+}
+
+/// The widgets and MetaGram's Dynamic Island Live Activity.
+@available(iOSApplicationExtension 16.1, iOS 16.1, *)
+struct AllWidgetsWithLiveActivity: WidgetBundle {
+   var body: some Widget {
+        Static_Widget()
+        Static_AvatarsWidget()
+        MetaGramLiveActivityWidget()
+   }
 }
 
 @available(iOSApplicationExtension 14.0, iOS 14.0, *)

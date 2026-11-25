@@ -88,6 +88,8 @@ public enum MetaGramSettings {
         case speedBoost = "metagram.media.speedBoost"
         /// "Send as Video Message" for videos picked from the gallery.
         case sendVideoAsRound = "metagram.media.sendVideoAsRound"
+        /// A Live Activity shows the MetaGram logo in the Dynamic Island while the app runs.
+        case islandBadge = "metagram.appearance.islandBadge"
 
         // Appearance
         /// Hide names, phone numbers and avatars of chats in lists (for screen sharing).
@@ -108,7 +110,7 @@ public enum MetaGramSettings {
     public static let ghostKeys: [Key] = [.dontReadMessages, .dontReadStories, .dontSendOnline, .dontSendTyping]
 
     /// Options that are on in a fresh install.
-    private static let defaultOn: Set<Key> = [.readOnInteract, .saveInBotDialogs, .translucentDeleted, .bypassCopyProtection, .keepSelfDestructingMedia, .eventLog, .downloadStories, .sendVideoAsRound]
+    private static let defaultOn: Set<Key> = [.readOnInteract, .saveInBotDialogs, .translucentDeleted, .bypassCopyProtection, .keepSelfDestructingMedia, .eventLog, .downloadStories, .sendVideoAsRound, .islandBadge]
 
     public static func get(_ key: Key) -> Bool {
         let defaults = UserDefaults.standard

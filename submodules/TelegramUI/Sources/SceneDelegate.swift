@@ -1,4 +1,5 @@
 import UIKit
+import SettingsUI
 
 @objc(SceneDelegate) final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
@@ -29,6 +30,8 @@ import UIKit
             return
         }
         self.appDelegate?.handleDidBecomeActive()
+        // MetaGram "Logo in Dynamic Island": an activity can only be started while the app is in the foreground
+        MetaGramLiveActivity.update()
     }
 
     func sceneWillResignActive(_ scene: UIScene) {

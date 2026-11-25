@@ -100,9 +100,10 @@ private let metaGramCatalog: [MetaGramGroup] = [
         MetaGramOption(key: .streamerMode, en: "Streamer Mode", ru: "Режим стримера"),
         MetaGramOption(key: .hidePremiumStatuses, en: "Hide Premium Statuses", ru: "Скрывать Premium-статусы"),
         MetaGramOption(key: .hideNotificationCounters, en: "Hide Notification Counters", ru: "Скрывать счётчики"),
+        MetaGramOption(key: .islandBadge, en: "Logo in Dynamic Island", ru: "Логотип в островке"),
     ], actions: [
         MetaGramActionOption(action: .appIcon, en: "App Icon", ru: "Иконка приложения"),
-    ], footerEn: "Streamer Mode hides chat names and message previews in the chat list.", footerRu: "Режим стримера скрывает названия чатов и тексты сообщений в списке чатов."),
+    ], footerEn: "Streamer Mode hides chat names and message previews in the chat list. On iPhones with the Dynamic Island, a Live Activity shows the MetaGram logo in the island while the app runs in the background.", footerRu: "Режим стримера скрывает названия чатов и тексты сообщений в списке чатов. На iPhone с островком Live Activity показывает логотип MetaGram в островке, пока приложение работает в фоне."),
     MetaGramGroup(en: "GENERAL", ru: "ОБЩЕЕ", options: [
         MetaGramOption(key: .disableStories, en: "Disable Stories", ru: "Отключить истории"),
         MetaGramOption(key: .hideSimilarChannels, en: "Disable Similar Channels", ru: "Без похожих каналов"),
@@ -251,6 +252,9 @@ public func metaGramSettingsController(context: AccountContext) -> ViewControlle
         },
         setValue: { key, value in
             MetaGramSettings.set(key, value)
+            if key == .islandBadge {
+                MetaGramLiveActivity.update()
+            }
             refresh()
         },
         open: { action in

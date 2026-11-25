@@ -1813,6 +1813,8 @@ plist_fragment(
             </array>
         </dict>
     </dict>
+    <key>NSSupportsLiveActivities</key>
+    <true/>
     <key>UIBackgroundModes</key>
     <array>
         <string>audio</string>
@@ -1950,7 +1952,11 @@ ios_application(
         ":AppStringResources",
     ],
     extensions = select({
-        ":disableExtensionsSetting": [],
+        # MetaGram: the sideload build keeps only the widget extension, which shows the Dynamic Island's
+        # Live Activity (one more App ID for a free Apple ID)
+        ":disableExtensionsSetting": [
+            ":WidgetExtension",
+        ],
         "//conditions:default": [
             ":ShareExtension",
             ":NotificationContentExtension",
