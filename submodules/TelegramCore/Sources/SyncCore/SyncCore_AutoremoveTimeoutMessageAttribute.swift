@@ -145,6 +145,11 @@ public extension Message {
         guard let timeout = self.minAutoremoveOrClearTimeout else {
             return false
         }
+        if MetaGramSelfDestruct.showsAsOrdinaryMedia(self) {
+            // MetaGram "Keep Self-Destructing Media": it opens in the ordinary viewer (screenshots allowed) and can be
+            // saved and forwarded (as a copy)
+            return false
+        }
         if timeout > 1 * 60 && timeout != viewOnceTimeout {
             return false
         }

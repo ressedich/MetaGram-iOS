@@ -112,16 +112,36 @@ public enum MetaGramSettings {
     /// Options that are on in a fresh install.
     private static let defaultOn: Set<Key> = [.readOnInteract, .saveInBotDialogs, .translucentDeleted, .bypassCopyProtection, .keepSelfDestructingMedia, .eventLog, .downloadStories, .sendVideoAsRound, .islandBadge]
 
+    /// The options read so far. Options are read on hot paths (every message laid out, every Premium check), so they
+    /// are read from UserDefaults once and kept here; `set` updates both.
+    private static let valueCache = Atomic<[Key: Bool]>(value: [:])
+
     public static func get(_ key: Key) -> Bool {
-        let defaults = UserDefaults.standard
-        if defaults.object(forKey: key.rawValue) == nil {
-            return defaultOn.contains(key)
+        if let value = valueCache.with({ $0[key] }) {
+            return value
         }
-        return defaults.bool(forKey: key.rawValue)
+        let defaults = UserDefaults.standard
+        let value: Bool
+        if defaults.object(forKey: key.rawValue) == nil {
+            value = defaultOn.contains(key)
+        } else {
+            value = defaults.bool(forKey: key.rawValue)
+        }
+        let _ = valueCache.modify { current in
+            var current = current
+            current[key] = value
+            return current
+        }
+        return value
     }
 
     public static func set(_ key: Key, _ value: Bool) {
         UserDefaults.standard.set(value, forKey: key.rawValue)
+        let _ = valueCache.modify { current in
+            var current = current
+            current[key] = value
+            return current
+        }
     }
 
     /// Whether the client ignores the server's copy protection ("Restrict saving content").
@@ -198,12 +218,39 @@ public enum MetaGramSettings {
         case shadowBanned = "metagram.filters.shadowBanned"
     }
 
+    /// Lists read so far, as for `valueCache`.
+    private static let listCache = Atomic<[ListKey: (list: [String], set: Set<String>)]>(value: [:])
+
+    private static func cachedList(_ key: ListKey) -> (list: [String], set: Set<String>) {
+        if let value = listCache.with({ $0[key] }) {
+            return value
+        }
+        let list = UserDefaults.standard.stringArray(forKey: key.rawValue) ?? []
+        let value = (list: list, set: Set(list))
+        let _ = listCache.modify { current in
+            var current = current
+            current[key] = value
+            return current
+        }
+        return value
+    }
+
     public static func list(_ key: ListKey) -> [String] {
-        return UserDefaults.standard.stringArray(forKey: key.rawValue) ?? []
+        return cachedList(key).list
+    }
+
+    /// The list as a set, for membership checks on hot paths.
+    public static func listSet(_ key: ListKey) -> Set<String> {
+        return cachedList(key).set
     }
 
     public static func setList(_ key: ListKey, _ value: [String]) {
         UserDefaults.standard.set(value, forKey: key.rawValue)
+        let _ = listCache.modify { current in
+            var current = current
+            current[key] = (list: value, set: Set(value))
+            return current
+        }
     }
 
     // MARK: - Request blocking

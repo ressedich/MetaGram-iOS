@@ -23,7 +23,7 @@ public enum MetaGramMessageFilter {
             return false
         }
         if let authorId = message.author?.id {
-            let banned = MetaGramSettings.list(.shadowBanned)
+            let banned = MetaGramSettings.listSet(.shadowBanned)
             if !banned.isEmpty && banned.contains("\(authorId.toInt64())") {
                 return true
             }

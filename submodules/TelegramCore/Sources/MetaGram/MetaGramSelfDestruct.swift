@@ -38,6 +38,11 @@ enum MetaGramSelfDestruct {
         return message.attributes.contains(where: { $0 is AutoclearTimeoutMessageAttribute }) && self.hasKeepableMedia(message.media)
     }
 
+    /// Incoming self-destructing media in a cloud chat, while the option is on, is shown and handled as ordinary media.
+    static func showsAsOrdinaryMedia(_ message: Message) -> Bool {
+        return self.isKept(peerId: message.id.peerId) && message.flags.contains(.Incoming)
+    }
+
     static func hasKeepableMedia(_ media: [Media]) -> Bool {
         return media.contains(where: { $0 is TelegramMediaImage || $0 is TelegramMediaFile })
     }

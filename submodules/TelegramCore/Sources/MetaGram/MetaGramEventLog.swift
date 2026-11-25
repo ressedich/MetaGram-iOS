@@ -78,9 +78,10 @@ final class MetaGramEventLogStore {
     /// Requires `lock`.
     private func store(_ table: [String: [MetaGramLogEvent]], basePath: String) {
         self.loaded[basePath] = table
-        if let data = try? JSONEncoder().encode(table) {
-            try? data.write(to: URL(fileURLWithPath: MetaGramEventLogStore.path(basePath)), options: .atomic)
-        }
+        // the table is a value: the write encodes this version, off the caller's queue
+        MetaGramFileWriter.shared.schedule(path: MetaGramEventLogStore.path(basePath), makeData: {
+            return try? JSONEncoder().encode(table)
+        })
     }
 
     func events(basePath: String, peerId: PeerId) -> [MetaGramLogEvent] {

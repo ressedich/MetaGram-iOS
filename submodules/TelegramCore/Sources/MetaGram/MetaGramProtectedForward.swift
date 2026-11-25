@@ -13,7 +13,7 @@ import SwiftSignalKit
 /// forward, so the result keeps one entry per requested message.
 enum MetaGramProtectedForward {
     static func prepare(account: Account, peerId: PeerId, messages: [EnqueueMessage]) -> Signal<[EnqueueMessage], NoError> {
-        guard MetaGramSettings.isCopyProtectionBypassed else {
+        guard MetaGramSettings.isCopyProtectionBypassed || MetaGramSelfDestruct.isEnabled else {
             return .single(messages)
         }
         let hasForwards = messages.contains(where: { message in
@@ -59,6 +59,13 @@ enum MetaGramProtectedForward {
     /// Whether the server forbids forwarding `message`: the message itself, its chat, or a private chat in which either
     /// side turned on "Restrict saving content".
     private static func isProtected(transaction: Transaction, message: Message) -> Bool {
+        // self-destructing media cannot be forwarded either; the copy carries no timer
+        if MetaGramSelfDestruct.showsAsOrdinaryMedia(message), message.autoclearAttribute != nil {
+            return true
+        }
+        guard MetaGramSettings.isCopyProtectionBypassed else {
+            return false
+        }
         if message.isServerCopyProtected() {
             return true
         }

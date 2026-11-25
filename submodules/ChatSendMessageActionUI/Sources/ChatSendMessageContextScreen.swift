@@ -574,6 +574,23 @@ final class ChatSendMessageContextScreenComponent: Component {
                         }
                     )))
                     
+                    if let metaGramExtraAction = sendMessage.metaGramExtraAction {
+                        items.append(.action(ContextMenuActionItem(
+                            id: AnyHashable("metagram.extra"),
+                            text: metaGramExtraAction.title,
+                            icon: { theme in
+                                return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Camera"), color: theme.contextMenu.primaryColor)
+                            }, action: { [weak self] _, _ in
+                                guard let self else {
+                                    return
+                                }
+                                self.animateOutToEmpty = true
+                                self.environment?.controller()?.dismiss()
+                                metaGramExtraAction.action()
+                            }
+                        )))
+                    }
+                    
                     if sendMessage.canSendWhenOnline && canSchedule {
                         items.append(.action(ContextMenuActionItem(
                             id: AnyHashable("whenOnline"),

@@ -69,9 +69,10 @@ final class MetaGramEditHistoryStore {
         }
         table[key] = list
         self.loaded[basePath] = table
-        if let data = try? JSONEncoder().encode(table) {
-            try? data.write(to: URL(fileURLWithPath: MetaGramEditHistoryStore.path(basePath)), options: .atomic)
-        }
+        // the table is a value: the write encodes this version, off the caller's queue
+        MetaGramFileWriter.shared.schedule(path: MetaGramEditHistoryStore.path(basePath), makeData: {
+            return try? JSONEncoder().encode(table)
+        })
     }
 }
 

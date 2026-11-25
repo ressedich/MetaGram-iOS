@@ -4063,6 +4063,16 @@ public final class MediaPickerScreenImpl: ViewController, MediaPickerScreen, Att
 
 final class MediaPickerContext: AttachmentMediaPickerContext {
     private weak var controller: MediaPickerScreenImpl?
+
+    var metaGramSendAsRound: (() -> Void)? {
+        guard MetaGramSettings.get(.sendVideoAsRound), let controller = self.controller, let send = controller.metaGramSendVideoAsRound, let selectionContext = controller.interaction?.selectionState, selectionContext.count() == 1, let asset = selectionContext.selectedItems().first as? TGMediaAsset, asset.isVideo, let backingAsset = asset.backingAsset else {
+            return nil
+        }
+        return { [weak controller] in
+            send(backingAsset)
+            controller?.dismissAll()
+        }
+    }
     
     var selectionCount: Signal<Int, NoError> {
         if let controller = self.controller, case .assets(_, .story) = controller.subject {

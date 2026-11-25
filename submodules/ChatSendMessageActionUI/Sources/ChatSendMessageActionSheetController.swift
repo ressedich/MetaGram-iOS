@@ -25,6 +25,8 @@ public enum SendMessageActionSheetControllerParams {
         public let hasTimers: Bool
         public let sendPaidMessageStars: StarsAmount?
         public let isMonoforum: Bool
+        /// MetaGram: an extra action in the send menu (title, action), e.g. "Send as Video Message".
+        public let metaGramExtraAction: (title: String, action: () -> Void)?
         
         public init(
             isScheduledMessages: Bool,
@@ -38,7 +40,8 @@ public enum SendMessageActionSheetControllerParams {
             currentPrice: Int64?,
             hasTimers: Bool,
             sendPaidMessageStars: StarsAmount?,
-            isMonoforum: Bool
+            isMonoforum: Bool,
+            metaGramExtraAction: (title: String, action: () -> Void)? = nil
         ) {
             self.isScheduledMessages = isScheduledMessages
             self.mediaPreview = mediaPreview
@@ -52,6 +55,7 @@ public enum SendMessageActionSheetControllerParams {
             self.hasTimers = hasTimers
             self.sendPaidMessageStars = sendPaidMessageStars
             self.isMonoforum = isMonoforum
+            self.metaGramExtraAction = metaGramExtraAction
         }
     }
     

@@ -1482,7 +1482,11 @@ final class AttachmentPanel: ASDisplayNode, ASScrollViewDelegate, ASGestureRecog
                             currentPrice: currentPrice,
                             hasTimers: hasTimers,
                             sendPaidMessageStars: strongSelf.presentationInterfaceState.sendPaidMessageStars,
-                            isMonoforum: strongSelf.presentationInterfaceState.renderedPeer?.peer?.isMonoForum ?? false
+                            isMonoforum: strongSelf.presentationInterfaceState.renderedPeer?.peer?.isMonoForum ?? false,
+                            metaGramExtraAction: (strongSelf.controller?.mediaPickerContext?.metaGramSendAsRound).flatMap { action -> (title: String, action: () -> Void) in
+                                let isRussian = strongSelf.presentationData.strings.baseLanguageCode.hasPrefix("ru")
+                                return (title: isRussian ? "Отправить кружком" : "Send as Video Message", action: action)
+                            }
                         )),
                         hasEntityKeyboard: hasEntityKeyboard,
                         gesture: gesture,
