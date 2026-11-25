@@ -80,6 +80,14 @@ public enum MetaGramSettings {
         case bypassCopyProtection = "metagram.spy.bypassCopyProtection"
         /// Self-destructing and view-once media stays viewable after its timer runs out.
         case keepSelfDestructingMedia = "metagram.spy.keepSelfDestructingMedia"
+        /// Keep a per-chat log of deletions, edits and profile changes ("MetaGram Logs" in the profile).
+        case eventLog = "metagram.spy.eventLog"
+        /// Anyone's stories can be saved, protected ones too.
+        case downloadStories = "metagram.spy.downloadStories"
+        /// Upload and download files with more parallel parts.
+        case speedBoost = "metagram.media.speedBoost"
+        /// "Send as Video Message" for videos picked from the gallery.
+        case sendVideoAsRound = "metagram.media.sendVideoAsRound"
 
         // Appearance
         /// Hide names, phone numbers and avatars of chats in lists (for screen sharing).
@@ -100,7 +108,7 @@ public enum MetaGramSettings {
     public static let ghostKeys: [Key] = [.dontReadMessages, .dontReadStories, .dontSendOnline, .dontSendTyping]
 
     /// Options that are on in a fresh install.
-    private static let defaultOn: Set<Key> = [.readOnInteract, .saveInBotDialogs, .translucentDeleted, .bypassCopyProtection, .keepSelfDestructingMedia]
+    private static let defaultOn: Set<Key> = [.readOnInteract, .saveInBotDialogs, .translucentDeleted, .bypassCopyProtection, .keepSelfDestructingMedia, .eventLog, .downloadStories, .sendVideoAsRound]
 
     public static func get(_ key: Key) -> Bool {
         let defaults = UserDefaults.standard
@@ -141,6 +149,11 @@ public enum MetaGramSettings {
             current.insert(peerId)
             return current
         }
+    }
+
+    /// Whether `peerId` is the user of one of this device's accounts.
+    static func isAccountPeer(_ peerId: Int64) -> Bool {
+        return accountPeerIds.with { $0.contains(peerId) }
     }
 
     /// Whether `peerId` is one of this device's accounts and "Local Telegram Premium" is on: the client then treats

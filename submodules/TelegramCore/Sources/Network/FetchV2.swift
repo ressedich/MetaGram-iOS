@@ -502,8 +502,10 @@ private final class FetchImpl {
                 }
             }
             
-            self.fastDownloads = network.engineKind == .rust
-            if isStory {
+            // MetaGram "Speed Boost": the fast download mode (more parts in flight) and larger parts on any engine
+            let metaGramSpeedBoost = MetaGramSettings.get(.speedBoost)
+            self.fastDownloads = network.engineKind == .rust || metaGramSpeedBoost
+            if isStory || metaGramSpeedBoost {
                 self.defaultPartSize = 512 * 1024
             } else {
                 self.defaultPartSize = 128 * 1024

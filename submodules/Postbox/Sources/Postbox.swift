@@ -37,6 +37,11 @@ public final class Transaction {
     /// order they were added. `f` must stay short: it must not wait for this Postbox, nor start a transaction of it
     /// synchronously (hand such work to another queue, as a dispatch does). There is no rollback to skip them on:
     /// `internalTransaction` has no rollback branch, and the actions run once `valueBox.commit()` has returned.
+    /// MetaGram: the account's media directory (`MediaBox.basePath`), for MetaGram's own files kept beside it.
+    public var metaGramMediaBasePath: String? {
+        return self.postbox?.metaGramMediaBasePath
+    }
+
     public func afterCommit(_ f: @escaping () -> Void) {
         assert(self.queue.isCurrent())
         assert(!self.disposed)
@@ -1720,6 +1725,10 @@ final class PostboxImpl {
     public let queue: Queue
     public let seedConfiguration: SeedConfiguration
     private let basePath: String
+    /// MetaGram: the media directory (`MediaBox.basePath`), where TelegramCore keeps MetaGram's own files.
+    var metaGramMediaBasePath: String {
+        return self.basePath + "/media"
+    }
     let valueBox: SqliteValueBox
     private let tempDir: TempBoxDirectory?
     

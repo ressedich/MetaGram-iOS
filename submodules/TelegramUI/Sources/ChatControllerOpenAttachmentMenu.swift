@@ -1617,6 +1617,9 @@ extension ChatControllerImpl {
         controller.legacyCompletion = { fromGallery, signals, silently, scheduleTime, parameters, getAnimatedTransitionSource, sendCompletion in
             completion(fromGallery, signals, silently, scheduleTime, parameters, getAnimatedTransitionSource, sendCompletion)
         }
+        controller.metaGramSendVideoAsRound = { [weak self] asset in
+            self?.metaGramSendVideoAsRound(asset: asset)
+        }
         controller.preparedCompletion = preparedCompletion
         controller.editCover = { [weak self] dimensions, completion in
             self?.presentAttachmentCoverEditor(dimensions: dimensions, inOverlay: false, completion: completion)

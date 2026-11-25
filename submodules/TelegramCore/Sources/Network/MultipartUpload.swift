@@ -155,6 +155,9 @@ final class MultipartUploadManager {
         
         if increaseParallelParts {
             self.parallelParts = 30
+        } else if MetaGramSettings.get(.speedBoost) {
+            // MetaGram "Speed Boost": more parts in flight for uploads
+            self.parallelParts = 8
         } else {
             self.parallelParts = 3
         }

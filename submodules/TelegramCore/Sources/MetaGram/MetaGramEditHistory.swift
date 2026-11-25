@@ -78,6 +78,7 @@ final class MetaGramEditHistoryStore {
 enum MetaGramEditHistory {
     /// Called with a stored message about to be replaced by a server edit: keeps its text if it changed.
     static func recordEdit(mediaBox: MediaBox, previous: Message, newText: String) {
+        MetaGramEventLog.recordEdit(basePath: mediaBox.basePath, previous: previous, newText: newText)
         guard MetaGramSettings.get(.saveEditsHistory), previous.id.namespace == Namespaces.Message.Cloud else {
             return
         }

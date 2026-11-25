@@ -54,6 +54,10 @@ enum MetaGramDeletedMessages {
         let save = MetaGramSettings.get(.saveDeletedMessages)
         let now = Int32(Date().timeIntervalSince1970)
         var toDelete: [MessageId] = []
+        var deletedMessages: [Message] = []
+        defer {
+            MetaGramEventLog.recordDeletions(transaction: transaction, messages: deletedMessages)
+        }
         for id in ids {
             guard let message = transaction.getMessage(id) else {
                 toDelete.append(id)
@@ -62,6 +66,7 @@ enum MetaGramDeletedMessages {
             if message.metaGramDeletedDate != nil {
                 continue
             }
+            deletedMessages.append(message)
             var keepInThisChat = true
             if !MetaGramSettings.get(.saveInBotDialogs), let user = transaction.getPeer(id.peerId) as? TelegramUser, user.botInfo != nil {
                 keepInThisChat = false
@@ -81,7 +86,8 @@ enum MetaGramDeletedMessages {
             if let forwardInfo = currentMessage.forwardInfo {
                 storeForwardInfo = StoreMessageForwardInfo(authorId: forwardInfo.author?.id, sourceId: forwardInfo.source?.id, sourceMessageId: forwardInfo.sourceMessageId, date: forwardInfo.date, authorSignature: forwardInfo.authorSignature, psaType: forwardInfo.psaType, flags: forwardInfo.flags)
             }
-            var attributes = currentMessage.attributes
+            // a kept copy keeps no self-destruct or auto-delete timer, or the device would remove it later (AyuGram: applyTTL(0))
+            var attributes = currentMessage.attributes.filter { !($0 is AutoclearTimeoutMessageAttribute) && !($0 is AutoremoveTimeoutMessageAttribute) }
             attributes.append(MetaGramDeletedMessageAttribute(date: date))
             return .update(StoreMessage(id: currentMessage.id, customStableId: nil, globallyUniqueId: currentMessage.globallyUniqueId, groupingKey: currentMessage.groupingKey, threadId: currentMessage.threadId, timestamp: currentMessage.timestamp, flags: StoreMessageFlags(currentMessage.flags), tags: currentMessage.tags, globalTags: currentMessage.globalTags, localTags: currentMessage.localTags, forwardInfo: storeForwardInfo, authorId: currentMessage.author?.id, text: currentMessage.text, attributes: attributes, media: currentMessage.media))
         })

@@ -3,9 +3,14 @@ import Postbox
 internal import TelegramApi
 import SwiftSignalKit
 
-func _internal_markMessageContentAsConsumedInteractively(postbox: Postbox, messageId: MessageId) -> Signal<Void, NoError> {
+func _internal_markMessageContentAsConsumedInteractively(postbox: Postbox, messageId: MessageId, burnSelfDestructing: Bool = false) -> Signal<Void, NoError> {
     return postbox.transaction { transaction -> Void in
         if let message = transaction.getMessage(messageId), message.flags.contains(.Incoming) {
+            if !burnSelfDestructing && MetaGramSelfDestruct.keepsUnburned(message) {
+                // MetaGram "Keep Self-Destructing Media", as AyuGram: opening it sends nothing, so the server starts no
+                // timer, the sender sees it unopened and it can be opened again. "Burn" in its menu consumes it.
+                return
+            }
             var updateMessage = false
             var updatedAttributes = message.attributes
             

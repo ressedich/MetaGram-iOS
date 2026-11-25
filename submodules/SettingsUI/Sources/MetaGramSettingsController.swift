@@ -61,37 +61,40 @@ private let metaGramCatalog: [MetaGramGroup] = [
         MetaGramOption(key: .dontSendTyping, en: "Don't Send Typing", ru: "Не отправлять «печатает»"),
         MetaGramOption(key: .goOfflineAutomatically, en: "Go Offline Automatically", ru: "Автоматически уходить в офлайн"),
         MetaGramOption(key: .readOnInteract, en: "Read on Interact", ru: "Читать при ответе"),
+    ], footerEn: "Messages you read stay unread for the sender, and nobody sees you online or typing. \"Read on Interact\" marks a chat read when you reply or react in it.", footerRu: "Прочитанные сообщения остаются непрочитанными у отправителя, а «в сети» и «печатает» никто не видит. «Читать при ответе» отмечает чат прочитанным, когда вы отвечаете или ставите реакцию."),
+    MetaGramGroup(en: "SENDING", ru: "ОТПРАВКА", options: [
         MetaGramOption(key: .sendWithoutSound, en: "Send without Sound", ru: "Отправлять без звука"),
         MetaGramOption(key: .delayedSend, en: "Delayed Send (~12 s)", ru: "Отложенная отправка (~12 с)"),
-    ], footerEn: "Messages you read stay unread for the sender, and nobody sees you online or typing. \"Read on Interact\" marks a chat read when you reply or react in it.", footerRu: "Прочитанные сообщения остаются непрочитанными у отправителя, а «в сети» и «печатает» никто не видит. «Читать при ответе» отмечает чат прочитанным, когда вы отвечаете или ставите реакцию."),
-    MetaGramGroup(en: "SPY ESSENTIALS", ru: "СЛЕЖКА", options: [
+    ], footerEn: "Delayed Send holds text messages for about 12 seconds as scheduled messages, so they can still be cancelled. Media is sent at once.", footerRu: "Отложенная отправка держит текстовые сообщения около 12 секунд как запланированные — их ещё можно отменить. Медиа уходит сразу."),
+    MetaGramGroup(en: "SAVING & LOGS", ru: "СОХРАНЕНИЕ И ЛОГИ", options: [
         MetaGramOption(key: .saveDeletedMessages, en: "Save Deleted Messages", ru: "Сохранять удалённые сообщения"),
-        MetaGramOption(key: .saveEditsHistory, en: "Save Edits History", ru: "Сохранять историю правок"),
         MetaGramOption(key: .saveInBotDialogs, en: "Save in Bot Dialogs", ru: "Сохранять в чатах с ботами"),
+        MetaGramOption(key: .saveEditsHistory, en: "Save Edits History", ru: "Сохранять историю правок"),
         MetaGramOption(key: .keepClearedHistory, en: "Keep Cleared Chats", ru: "Не очищать чат у себя"),
-        MetaGramOption(key: .bypassCopyProtection, en: "Bypass Copy Protection", ru: "Обходить запрет пересылки"),
         MetaGramOption(key: .keepSelfDestructingMedia, en: "Keep Self-Destructing Media", ru: "Сохранять исчезающие медиа"),
-    ], footerEn: "Messages deleted by others stay in the chat marked \"deleted\". Earlier versions of edited messages open from the message menu. Only what reached this device is kept. With copy protection bypassed, protected messages can be forwarded, copied and saved; they are sent as your own messages, with their media downloaded and uploaded again. Self-destructing and view-once media you opened stays in the chat after its timer runs out.", footerRu: "Сообщения, удалённые собеседником, остаются в чате с пометкой «удалено». Прежние версии изменённых сообщений — в меню сообщения, пункт «История правок». Сохраняется только то, что успело прийти на устройство. С обходом запрета пересылки защищённые сообщения можно пересылать, копировать и сохранять: они уходят как ваши собственные сообщения, а медиа скачивается и загружается заново. Открытые исчезающие и одноразовые медиа остаются в чате, когда их таймер истёк."),
+        MetaGramOption(key: .eventLog, en: "MetaGram Logs", ru: "Логи MetaGram"),
+    ], footerEn: "Deleted messages stay in the chat marked \"deleted\"; earlier versions of edited ones are in the message menu. Self-destructing media opens any number of times and the sender sees it unopened; \"Burn Media\" in its menu opens it for real. MetaGram Logs in a profile list what that chat deleted, edited and changed. Only what reached this device is kept.", footerRu: "Удалённые сообщения остаются в чате с пометкой «удалено», прежние версии изменённых — в меню сообщения. Исчезающие медиа открываются сколько угодно раз, а отправитель видит их непросмотренными; «Сжечь медиа» в меню открывает по-настоящему. «Логи MetaGram» в профиле показывают, что в этом чате удаляли, правили и меняли. Сохраняется только то, что дошло до устройства."),
+    MetaGramGroup(en: "CONTENT PROTECTION", ru: "ЗАЩИТА КОНТЕНТА", options: [
+        MetaGramOption(key: .bypassCopyProtection, en: "Bypass Copy Protection", ru: "Обходить запрет пересылки"),
+        MetaGramOption(key: .downloadStories, en: "Download Stories", ru: "Скачивание историй"),
+    ], footerEn: "Protected chats can be forwarded, copied and saved: such messages are sent as your own, their media downloaded and uploaded again. Any story, protected ones too, can be saved from its menu.", footerRu: "Из защищённых чатов можно пересылать, копировать и сохранять: такие сообщения уходят как ваши, а медиа скачивается и загружается заново. Любую историю, в том числе защищённую, можно сохранить из её меню."),
+    MetaGramGroup(en: "MEDIA", ru: "МЕДИА", options: [
+        MetaGramOption(key: .speedBoost, en: "Speed Boost", ru: "Ускорение загрузки"),
+        MetaGramOption(key: .sendVideoAsRound, en: "Send Video as Video Message", ru: "Видео из галереи кружком"),
+    ], footerEn: "Speed Boost downloads and uploads files in more parallel parts. A video picked from the gallery can be sent as a round video message from the send button's menu. Voice and video messages can be saved from their menu.", footerRu: "Ускорение загружает и выгружает файлы большим числом параллельных частей. Видео из галереи можно отправить кружком из меню кнопки отправки. Голосовые и кружки сохраняются из меню сообщения."),
     MetaGramGroup(en: "CHATS", ru: "ЧАТЫ", options: [
-        MetaGramOption(key: .showPeerId, en: "Show Peer ID", ru: "Показывать ID"),
+        MetaGramOption(key: .showPeerId, en: "Show ID, DC and Registration", ru: "ID, DC и дата регистрации"),
         MetaGramOption(key: .showMessageSeconds, en: "Show Message Seconds", ru: "Секунды во времени сообщений"),
         MetaGramOption(key: .hideReactions, en: "Hide Reactions", ru: "Скрывать реакции"),
         MetaGramOption(key: .translucentDeleted, en: "Translucent Deleted Messages", ru: "Полупрозрачные удалённые"),
         MetaGramOption(key: .markWithIcons, en: "Replace Marks with Icons", ru: "Значки вместо пометок"),
         MetaGramOption(key: .disableGreetingSticker, en: "Disable Greeting Sticker", ru: "Без приветственного стикера"),
         MetaGramOption(key: .disableColorfulReplies, en: "Disable Colorful Replies", ru: "Без цветных ответов"),
-    ]),
+    ], footerEn: "The profile shows the ID (tap to copy), the data center and an estimate of when the account was registered.", footerRu: "В профиле видны ID (нажмите, чтобы скопировать), дата-центр и примерная дата регистрации аккаунта."),
     MetaGramGroup(en: "SEND CONFIRMATIONS", ru: "ПОДТВЕРЖДЕНИЕ ОТПРАВКИ", options: [
         MetaGramOption(key: .confirmStickers, en: "Stickers", ru: "Стикеры"),
         MetaGramOption(key: .confirmGifs, en: "GIFs", ru: "GIF"),
         MetaGramOption(key: .confirmVoice, en: "Voice & Round Videos", ru: "Голосовые и кружки"),
-    ]),
-    MetaGramGroup(en: "GENERAL", ru: "ОБЩЕЕ", options: [
-        MetaGramOption(key: .disableStories, en: "Disable Stories", ru: "Отключить истории"),
-        MetaGramOption(key: .hideSimilarChannels, en: "Disable Similar Channels", ru: "Без похожих каналов"),
-        MetaGramOption(key: .disableLinkWarning, en: "Disable Open Link Warning", ru: "Без предупреждения о ссылках"),
-        MetaGramOption(key: .filterZalgo, en: "Filter Zalgo", ru: "Фильтровать «залго»"),
-        MetaGramOption(key: .spoofAndroid, en: "Spoof Client as Android", ru: "Маскироваться под Android"),
     ]),
     MetaGramGroup(en: "APPEARANCE", ru: "ВНЕШНИЙ ВИД", options: [
         MetaGramOption(key: .streamerMode, en: "Streamer Mode", ru: "Режим стримера"),
@@ -100,6 +103,13 @@ private let metaGramCatalog: [MetaGramGroup] = [
     ], actions: [
         MetaGramActionOption(action: .appIcon, en: "App Icon", ru: "Иконка приложения"),
     ], footerEn: "Streamer Mode hides chat names and message previews in the chat list.", footerRu: "Режим стримера скрывает названия чатов и тексты сообщений в списке чатов."),
+    MetaGramGroup(en: "GENERAL", ru: "ОБЩЕЕ", options: [
+        MetaGramOption(key: .disableStories, en: "Disable Stories", ru: "Отключить истории"),
+        MetaGramOption(key: .hideSimilarChannels, en: "Disable Similar Channels", ru: "Без похожих каналов"),
+        MetaGramOption(key: .disableLinkWarning, en: "Disable Open Link Warning", ru: "Без предупреждения о ссылках"),
+        MetaGramOption(key: .filterZalgo, en: "Filter Zalgo", ru: "Фильтровать «залго»"),
+        MetaGramOption(key: .spoofAndroid, en: "Spoof Client as Android", ru: "Маскироваться под Android"),
+    ]),
     MetaGramGroup(en: "FILTERS", ru: "ФИЛЬТРЫ", options: [
         MetaGramOption(key: .enableFilters, en: "Enable Filters", ru: "Включить фильтры"),
         MetaGramOption(key: .hideFromBlocked, en: "Hide from Blocked Users", ru: "Скрывать от заблокированных"),

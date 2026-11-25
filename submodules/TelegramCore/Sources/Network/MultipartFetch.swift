@@ -585,7 +585,8 @@ private final class MultipartFetchManager {
                 self.parallelParts = 4 * 4
             } else {
                 self.defaultPartSize = 512 * 1024
-                self.parallelParts = 8
+                // MetaGram "Speed Boost": twice the parts in flight
+                self.parallelParts = MetaGramSettings.get(.speedBoost) ? 16 : 8
             }
         } else {
             self.parallelParts = 1

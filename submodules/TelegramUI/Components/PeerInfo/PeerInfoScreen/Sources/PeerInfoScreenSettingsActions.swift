@@ -312,6 +312,12 @@ extension PeerInfoScreenNode {
             push(self.context.sharedContext.makeWalletScreen(context: self.context))
         case .metaGram:
             push(metaGramSettingsController(context: self.context))
+        case let .metaGramCopy(text):
+            UIPasteboard.general.string = text
+            let isRussian = self.presentationData.strings.baseLanguageCode.hasPrefix("ru")
+            self.controller?.present(UndoOverlayController(presentationData: self.presentationData, content: .copy(text: isRussian ? "Скопировано" : "Copied"), elevatedLayout: false, animateInAsReplacement: false, action: { _ in return false }), in: .current)
+        case .metaGramEventLog:
+            self.controller?.push(metaGramEventLogController(context: self.context, peerId: self.peerId))
         }
     }
 

@@ -387,6 +387,8 @@ public final class MediaPickerScreenImpl: ViewController, MediaPickerScreen, Att
     public let chatMediaEditorItemStore: ChatMediaEditorItemStore?
     
     public var requestAttachmentMenuExpansion: () -> Void = { }
+    /// MetaGram "Send as Video Message": sends the one selected video as a round video message (set by the chat).
+    public var metaGramSendVideoAsRound: ((PHAsset) -> Void)?
     public var updateNavigationStack: (@escaping ([AttachmentContainable]) -> ([AttachmentContainable], AttachmentMediaPickerContext?)) -> Void = { _ in }
     public var parentController: () -> ViewController? = {
         return nil
@@ -3896,6 +3898,20 @@ public final class MediaPickerScreenImpl: ViewController, MediaPickerScreen, Att
                             f(.default)
                             
                             self?.controllerNode.send(asFile: true, silently: false, scheduleTime: nil, animated: true, parameters: nil, completion: {})
+                        })))
+                    }
+                    if MetaGramSettings.get(.sendVideoAsRound), self.metaGramSendVideoAsRound != nil, selectionCount == 1, !hasSpoilers, price == nil, let selectionContext = self.interaction?.selectionState, let asset = selectionContext.selectedItems().first as? TGMediaAsset, asset.isVideo, let backingAsset = asset.backingAsset {
+                        // MetaGram: the selected video as a round video message (cropped to a square, up to 60 s)
+                        let isRussian = strings.baseLanguageCode.hasPrefix("ru")
+                        items.append(.action(ContextMenuActionItem(text: isRussian ? "Отправить кружком" : "Send as Video Message", icon: { theme in
+                            return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Camera"), color: theme.contextMenu.primaryColor)
+                        }, action: { [weak self] _, f in
+                            f(.default)
+                            guard let self else {
+                                return
+                            }
+                            self.metaGramSendVideoAsRound?(backingAsset)
+                            self.dismissAll()
                         })))
                     }
                     if price == nil {

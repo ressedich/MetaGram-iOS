@@ -323,7 +323,10 @@ public func updatePeersCustom(transaction: Transaction, peers: [Peer], update: (
         var updated = updated
         
         if let previous = previous as? TelegramUser, let updatedUser = updated as? TelegramUser {
-            updated = TelegramUser.merge(lhs: previous, rhs: updatedUser)
+            let mergedUser = TelegramUser.merge(lhs: previous, rhs: updatedUser)
+            updated = mergedUser
+            // MetaGram Logs: name, username and photo changes
+            MetaGramEventLog.recordUserUpdate(transaction: transaction, previous: previous, updated: mergedUser)
         }
         
         if let updatedChannel = updated as? TelegramChannel {

@@ -1407,6 +1407,32 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
             })))
         }
 
+        let metaGramIsRussian = chatPresentationInterfaceState.strings.baseLanguageCode.hasPrefix("ru")
+        if let file = MetaGramMediaExport.exportableFile(message), !isExpired {
+            // MetaGram: voice messages and round videos can be saved (Telegram has no such action)
+            let saveTitle: String
+            if file.isVoice {
+                saveTitle = metaGramIsRussian ? "Сохранить голосовое" : "Save Voice Message"
+            } else {
+                saveTitle = metaGramIsRussian ? "Сохранить кружок" : "Save Video Message"
+            }
+            actions.append(.action(ContextMenuActionItem(text: saveTitle, icon: { theme in
+                return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Download"), color: theme.actionSheet.primaryTextColor)
+            }, action: { _, f in
+                f(.dismissWithoutContent)
+                MetaGramMediaExport.share(context: context, message: message, file: file)
+            })))
+        }
+        if MetaGramSettings.get(.keepSelfDestructingMedia), message.flags.contains(.Incoming), message.id.peerId.namespace != Namespaces.Peer.SecretChat, message.attributes.contains(where: { ($0 as? AutoclearTimeoutMessageAttribute).flatMap({ $0.countdownBeginTime == nil || $0.countdownBeginTime == 0 }) == true }) {
+            // MetaGram "Keep Self-Destructing Media" leaves it unopened; this consumes it on purpose (AyuGram's "Burn")
+            actions.append(.action(ContextMenuActionItem(text: metaGramIsRussian ? "Сжечь медиа" : "Burn Media", textColor: .destructive, icon: { theme in
+                return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Delete"), color: theme.actionSheet.destructiveActionTextColor)
+            }, action: { _, f in
+                f(.dismissWithoutContent)
+                let _ = context.engine.messages.metaGramBurnSelfDestructingMedia(messageId: message.id).startStandalone()
+            })))
+        }
+
         let isCopyProtected = chatPresentationInterfaceState.copyProtectionEnabled || message.isCopyProtected()
         if !messageText.isEmpty || richMessageMarkdown != nil || (resourceAvailable && isImage) || diceEmoji != nil {
             if !isExpired {

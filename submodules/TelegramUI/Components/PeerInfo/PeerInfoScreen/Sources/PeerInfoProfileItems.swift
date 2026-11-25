@@ -45,6 +45,7 @@ enum InfoSection: Int, CaseIterable {
     case calls
     case personalChannel
     case peerInfo
+    case metaGram
     case agentProviders
     case balances
     case permissions
@@ -965,9 +966,40 @@ func infoItems(
         default:
             idText = "\(rawId)"
         }
-        items[.peerInfo]!.append(PeerInfoScreenLabeledValueItem(id: AnyHashable("metagram.peerId"), label: "ID", text: idText, textColor: .primary, action: { _, _ in
-            UIPasteboard.general.string = idText
+        // MetaGram: tap copies the id, with a toast
+        items[.metaGram]!.append(PeerInfoScreenLabeledValueItem(id: AnyHashable("metagram.peerId"), label: "ID", text: idText, textColor: .primary, action: { _, _ in
+            interaction.openSettings(.metaGramCopy(idText))
         }, requestLayout: { _ in
+        }))
+        if let datacenterId = MetaGramPeerInfo.datacenterId(peer: peer) {
+            let dcText = MetaGramPeerInfo.datacenterName(datacenterId)
+            items[.metaGram]!.append(PeerInfoScreenLabeledValueItem(id: AnyHashable("metagram.dc"), label: "DC", text: dcText, textColor: .primary, action: { _, _ in
+                interaction.openSettings(.metaGramCopy(dcText))
+            }, requestLayout: { _ in
+            }))
+        }
+        if case .user = peer {
+            let isRussian = presentationData.strings.baseLanguageCode.hasPrefix("ru")
+            let formatter = DateFormatter()
+            formatter.dateFormat = "LLLL yyyy"
+            formatter.locale = Locale(identifier: isRussian ? "ru_RU" : "en_US")
+            let registrationText: String
+            switch MetaGramPeerInfo.estimatedRegistrationDate(userId: rawId) {
+            case let .before(date):
+                registrationText = (isRussian ? "раньше, чем " : "before ") + formatter.string(from: Date(timeIntervalSince1970: TimeInterval(date)))
+            case let .approximately(date):
+                registrationText = "≈ " + formatter.string(from: Date(timeIntervalSince1970: TimeInterval(date)))
+            }
+            items[.metaGram]!.append(PeerInfoScreenLabeledValueItem(id: AnyHashable("metagram.registration"), label: isRussian ? "Регистрация" : "Registered", text: registrationText, textColor: .primary, action: { _, _ in
+                interaction.openSettings(.metaGramCopy(registrationText))
+            }, requestLayout: { _ in
+            }))
+        }
+    }
+    if MetaGramSettings.get(.eventLog), let peer = data.peer, peer.id != context.account.peerId {
+        let isRussian = presentationData.strings.baseLanguageCode.hasPrefix("ru")
+        items[.metaGram]!.append(PeerInfoScreenDisclosureItem(id: AnyHashable("metagram.logs"), text: isRussian ? "Логи MetaGram" : "MetaGram Logs", icon: PresentationResourcesSettings.metaGram, action: {
+            interaction.openSettings(.metaGramEventLog)
         }))
     }
 

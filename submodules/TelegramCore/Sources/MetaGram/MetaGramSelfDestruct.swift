@@ -1,9 +1,12 @@
 import Foundation
 import Postbox
 
-/// MetaGram "Keep Self-Destructing Media": a self-destructing or view-once photo, video, voice or round video in a
-/// cloud chat stays viewable after its timer runs out.
+/// MetaGram "Keep Self-Destructing Media", as AyuGram does it: a self-destructing or view-once photo, video, voice or
+/// round video in a cloud chat can be opened any number of times. Opening it does not consume it
+/// (`MarkMessageContentAsConsumedInteractively`), so the server starts no timer and the sender sees it unopened; the
+/// message menu's "Burn" consumes it on purpose.
 ///
+/// If it is consumed anyway (burned, or opened on another device), the media stays viewable after its timer runs out.
 /// The client normally replaces such media with "expired" placeholders in three places: when it is opened
 /// (`MarkMessageContentAsConsumedInteractively`), when its timer fires (`ManagedAutoremoveMessageOperations`), and when
 /// the server sends the message again without its media (edit updates, history validation). With the option on, the
@@ -24,6 +27,15 @@ enum MetaGramSelfDestruct {
         return attributes.filter { attribute in
             return !(attribute is AutoclearTimeoutMessageAttribute)
         }
+    }
+
+    /// Whether opening `message` must leave it unopened: incoming self-destructing media in a cloud chat while the
+    /// option is on.
+    static func keepsUnburned(_ message: Message) -> Bool {
+        guard self.isKept(peerId: message.id.peerId), message.flags.contains(.Incoming) else {
+            return false
+        }
+        return message.attributes.contains(where: { $0 is AutoclearTimeoutMessageAttribute }) && self.hasKeepableMedia(message.media)
     }
 
     static func hasKeepableMedia(_ media: [Media]) -> Bool {

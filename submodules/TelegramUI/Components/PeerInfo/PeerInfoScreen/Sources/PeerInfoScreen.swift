@@ -200,6 +200,10 @@ enum PeerInfoSettingsSection {
     case ton
     case wallet
     case metaGram
+    /// MetaGram: copies a profile value (id, DC, registration date) with a toast.
+    case metaGramCopy(String)
+    /// MetaGram: the chat's MetaGram Logs.
+    case metaGramEventLog
 }
 
 enum PeerInfoReportType {

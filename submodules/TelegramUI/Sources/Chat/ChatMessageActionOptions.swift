@@ -303,6 +303,25 @@ private func chatForwardOptions(selfController: ChatControllerImpl, sourceView: 
             })))
         }
         
+        if canHideNames && hideNamesEnabled {
+            // MetaGram: one tap for "hide sender names" + "hide captions" + send
+            let isRussian = presentationData.strings.baseLanguageCode.hasPrefix("ru")
+            items.append(.action(ContextMenuActionItem(text: isRussian ? "Отправить без имени и текста" : "Send Without Name and Caption", icon: { theme in return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Resend"), color: theme.contextMenu.primaryColor) }, action: { [weak selfController] _, f in
+                f(.default)
+                guard let selfController else {
+                    return
+                }
+                selfController.interfaceInteraction?.updateForwardOptionsState({ current in
+                    var updated = current
+                    updated.hideNames = true
+                    updated.hideCaptions = true
+                    updated.unhideNamesOnCaptionChange = false
+                    return updated
+                })
+                selfController.controllerInteraction?.sendCurrentMessage(false, nil)
+            })))
+        }
+        
         if !items.isEmpty {
             items.append(.separator)
         }
