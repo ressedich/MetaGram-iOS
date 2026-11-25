@@ -44,6 +44,9 @@ final class CameraOutput: NSObject {
     
     private var photoCaptureRequests = Atomic<[Int64: PhotoCaptureContext]>(value: [:])
     private var videoRecorder: VideoRecorder?
+    /// MetaGram "Voice Effect" for round video messages, one per recording.
+    private var metaGramVoiceEffect: MetaGramVoiceEffectProcessor?
+    private var metaGramVoiceEffectRecorderId: ObjectIdentifier?
     
     private var captureOrientation: AVCaptureVideoOrientation = .portrait
         
@@ -593,6 +596,16 @@ final class CameraOutput: NSObject {
                 }
                 
                 self.lastAudioSampleTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer) + CMSampleBufferGetDuration(sampleBuffer)
+
+                if self.isVideoMessage {
+                    let recorderId = ObjectIdentifier(videoRecorder)
+                    if self.metaGramVoiceEffectRecorderId != recorderId {
+                        self.metaGramVoiceEffectRecorderId = recorderId
+                        let sampleRate = CMSampleBufferGetFormatDescription(sampleBuffer).flatMap { CMAudioFormatDescriptionGetStreamBasicDescription($0)?.pointee.mSampleRate } ?? 48000.0
+                        self.metaGramVoiceEffect = MetaGramVoiceEffectProcessor(effectRawValue: MetaGramVoiceEffectProcessor.currentEffectRawValue, sampleRate: sampleRate)
+                    }
+                    self.metaGramVoiceEffect?.process(sampleBuffer: sampleBuffer)
+                }
             }
             videoRecorder.appendSampleBuffer(sampleBuffer)
         }

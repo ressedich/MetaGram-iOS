@@ -254,6 +254,8 @@ final class ChatImageGalleryItemNode: ZoomableContentGalleryItemNode {
     private let statusDisposable = MetaDisposable()
     private let dataDisposable = MetaDisposable()
     private let recognitionDisposable = MetaDisposable()
+    /// MetaGram "Copy All Text": the text recognized on the photo (on the device, by Vision).
+    private var metaGramRecognizedText: String?
     private var status: EngineMediaResource.FetchStatus?
     private var fetchedDimensions: PixelDimensions?
     
@@ -372,6 +374,14 @@ final class ChatImageGalleryItemNode: ZoomableContentGalleryItemNode {
         |> deliverOnMainQueue).start(next: { [weak self] results in
             if let strongSelf = self {
                 strongSelf.recognizedContentNode?.removeFromSupernode()
+                let recognizedTexts: [String] = results.compactMap { result -> String? in
+                    if case let .text(text, _) = result.content {
+                        return text
+                    }
+                    return nil
+                }
+                strongSelf.metaGramRecognizedText = recognizedTexts.isEmpty ? nil : recognizedTexts.joined(separator: "
+")
                 if !results.isEmpty {
                     let size = strongSelf.imageNode.bounds.size
                     let recognizedContentNode = RecognizedContentContainer(size: size, recognitions: results, presentationData: strongSelf.context.sharedContext.currentPresentationData.with { $0 }, present: { [weak self] c, a in
@@ -781,6 +791,19 @@ final class ChatImageGalleryItemNode: ZoomableContentGalleryItemNode {
                             controller.present(UndoOverlayController(presentationData: strongSelf.presentationData, content: .mediaSaved(text: strongSelf.presentationData.strings.Gallery_ImageSaved), elevatedLayout: false, animateInAsReplacement: false, action: { _ in return false }), in: .window(.root))
                         })
                     })))
+                    
+                    if let recognizedText = self.metaGramRecognizedText, !recognizedText.isEmpty {
+                        // MetaGram: copies all the text recognized on the photo
+                        let isRussian = self.presentationData.strings.baseLanguageCode.hasPrefix("ru")
+                        items.append(.action(ContextMenuActionItem(text: isRussian ? "Скопировать весь текст" : "Copy All Text", icon: { theme in generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Copy"), color: theme.actionSheet.primaryTextColor) }, action: { [weak self] _, f in
+                            f(.default)
+                            UIPasteboard.general.string = recognizedText
+                            guard let strongSelf = self, let controller = strongSelf.galleryController() else {
+                                return
+                            }
+                            controller.present(UndoOverlayController(presentationData: strongSelf.presentationData, content: .copy(text: strongSelf.presentationData.strings.Conversation_TextCopied), elevatedLayout: false, animateInAsReplacement: false, action: { _ in return false }), in: .window(.root))
+                        })))
+                    }
                 }
             }
             

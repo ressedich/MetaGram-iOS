@@ -169,6 +169,7 @@ public enum MetaGramSettings {
         case high = 2
         case robot = 3
         case echo = 4
+        case female = 5
     }
 
     private static let voiceEffectKey = "metagram.voice.effect"

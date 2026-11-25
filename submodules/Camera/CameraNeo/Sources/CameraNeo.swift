@@ -54,6 +54,9 @@ final class CameraNeo: NSObject, CameraProtocol {
 
     private var frameProcessor: RoundVideoFrameProcessor?
     private var recorder: VideoRecorder?
+    /// MetaGram "Voice Effect" for round video messages, one per recording.
+    private var metaGramVoiceEffect: MetaGramVoiceEffectProcessor?
+    private var metaGramVoiceEffectRecorderId: ObjectIdentifier?
     private let recordingActive = Atomic<Bool>(value: false)
     private let recordingStopRequested = Atomic<Bool>(value: false)
     private let recordingDuration = Atomic<Double>(value: 0.0)
@@ -1125,6 +1128,15 @@ extension CameraNeo: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudi
 
         let outputIdentity = ObjectIdentifier(output)
         if self.audioOutputIdentity.with({ $0 }) == outputIdentity {
+            if self.configuration.isRoundVideo, let recorder = self.recorder {
+                let recorderId = ObjectIdentifier(recorder)
+                if self.metaGramVoiceEffectRecorderId != recorderId {
+                    self.metaGramVoiceEffectRecorderId = recorderId
+                    let sampleRate = CMSampleBufferGetFormatDescription(sampleBuffer).flatMap { CMAudioFormatDescriptionGetStreamBasicDescription($0)?.pointee.mSampleRate } ?? 48000.0
+                    self.metaGramVoiceEffect = MetaGramVoiceEffectProcessor(effectRawValue: MetaGramVoiceEffectProcessor.currentEffectRawValue, sampleRate: sampleRate)
+                }
+                self.metaGramVoiceEffect?.process(sampleBuffer: sampleBuffer)
+            }
             self.recorder?.appendAudioSampleBuffer(sampleBuffer)
             return
         }

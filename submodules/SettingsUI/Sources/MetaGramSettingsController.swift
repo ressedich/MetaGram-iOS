@@ -68,7 +68,7 @@ private let metaGramCatalog: [MetaGramGroup] = [
         MetaGramOption(key: .delayedSend, en: "Delayed Send (~12 s)", ru: "Отложенная отправка (~12 с)"),
     ], actions: [
         MetaGramActionOption(action: .voiceEffect, en: "Voice Effect", ru: "Эффект голоса"),
-    ], footerEn: "Delayed Send holds text messages for about 12 seconds as scheduled messages, so they can still be cancelled. Media is sent at once. The voice effect changes your voice in voice messages you record.", footerRu: "Отложенная отправка держит текстовые сообщения около 12 секунд как запланированные — их ещё можно отменить. Медиа уходит сразу. Эффект голоса меняет ваш голос в записываемых голосовых сообщениях."),
+    ], footerEn: "Delayed Send holds text messages for about 12 seconds as scheduled messages, so they can still be cancelled. Media is sent at once. The voice effect changes your voice in the voice and video messages you record.", footerRu: "Отложенная отправка держит текстовые сообщения около 12 секунд как запланированные — их ещё можно отменить. Медиа уходит сразу. Эффект голоса меняет ваш голос в записываемых голосовых и кружках."),
     MetaGramGroup(en: "SAVING & LOGS", ru: "СОХРАНЕНИЕ И ЛОГИ", options: [
         MetaGramOption(key: .saveDeletedMessages, en: "Save Deleted Messages", ru: "Сохранять удалённые сообщения"),
         MetaGramOption(key: .saveInBotDialogs, en: "Save in Bot Dialogs", ru: "Сохранять в чатах с ботами"),
@@ -330,6 +330,8 @@ private func metaGramVoiceEffectTitle(_ effect: MetaGramSettings.VoiceEffect, _ 
         return s.text("Robot", "Робот")
     case .echo:
         return s.text("Echo", "Эхо")
+    case .female:
+        return s.text("Female Voice", "Женский голос")
     }
 }
 

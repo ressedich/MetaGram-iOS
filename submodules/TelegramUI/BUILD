@@ -221,6 +221,7 @@ swift_library(
         "//submodules/PersistentStringHash:PersistentStringHash",
         "//submodules/SegmentedControlNode:SegmentedControlNode",
         "//submodules/AppBundle:AppBundle",
+        "//submodules/Camera:Camera",
         "//submodules/Markdown:Markdown",
         "//submodules/SearchPeerMembers:SearchPeerMembers",
         "//submodules/WidgetItems:WidgetItems",

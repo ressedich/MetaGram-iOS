@@ -178,6 +178,17 @@ public func stringForMessageTimestampStatus(
         dateText = "\(deletedLabel) \(dateText)"
     }
 
+    if message.flags.contains(.Incoming), message.id.peerId.namespace != Namespaces.Peer.SecretChat, message.attributes.contains(where: { $0 is AutoclearTimeoutMessageAttribute }) {
+        // MetaGram "Keep Self-Destructing Media" shows such media as ordinary media: mark it
+        let selfDestructLabel: String
+        if MetaGramSettings.get(.markWithIcons) {
+            selfDestructLabel = "🔥"
+        } else {
+            selfDestructLabel = strings.baseLanguageCode.hasPrefix("ru") ? "исчезающее" : "self-destructing"
+        }
+        dateText = "\(selfDestructLabel) \(dateText)"
+    }
+
     if let repeatPeriod = message.scheduleRepeatPeriod {
         let repeatString: String
         switch repeatPeriod {

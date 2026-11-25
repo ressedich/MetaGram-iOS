@@ -3,6 +3,7 @@ import SwiftSignalKit
 import CoreMedia
 import AVFoundation
 import TelegramCore
+import Camera
 import TelegramAudio
 import UniversalMediaPlayer
 import AccountContext
@@ -162,7 +163,7 @@ final class ManagedAudioRecorderContext {
     private let mediaManager: MediaManager
     private var oggWriter: TGOggOpusWriter
     /// MetaGram "Voice Effect", chosen when the recording starts.
-    private let metaGramVoiceEffect = MetaGramVoiceEffectProcessor(effect: MetaGramSettings.voiceEffect)
+    private let metaGramVoiceEffect = MetaGramVoiceEffectProcessor(effectRawValue: MetaGramSettings.voiceEffect.rawValue, sampleRate: 48000.0)
     private var dataItem: TGDataItem
     private var audioBuffer = Data()
     

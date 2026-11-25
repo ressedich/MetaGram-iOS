@@ -56,6 +56,11 @@ enum MetaGramSelfDestruct {
         guard updated.media.contains(where: { $0 is TelegramMediaExpiredContent }), self.hasKeepableMedia(previous.media) else {
             return updated
         }
-        return updated.withUpdatedMedia(previous.media).withUpdatedAttributes(self.attributesWithoutTimers(updated.attributes))
+        // the previous timer attribute stays as the "self-destructing" mark; the message shows as ordinary media anyway
+        var attributes = self.attributesWithoutTimers(updated.attributes)
+        if let previousTimer = previous.attributes.first(where: { $0 is AutoclearTimeoutMessageAttribute }) {
+            attributes.append(previousTimer)
+        }
+        return updated.withUpdatedMedia(previous.media).withUpdatedAttributes(attributes)
     }
 }

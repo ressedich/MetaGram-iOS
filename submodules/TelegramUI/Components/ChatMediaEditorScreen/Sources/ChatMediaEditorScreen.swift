@@ -228,6 +228,8 @@ public final class ChatMediaEditorScreen: ViewController, ChatMediaGalleryContro
         weak var timerTooltipController: TooltipScreen?
         weak var muteTooltipController: TooltipScreen?
         var muteButton: UIButton?
+        /// MetaGram: "Send as Video Message" next to the mute button.
+        var metaGramRoundButton: UIButton?
         var coverModel: ChatMediaEditorCoverModel?
         var coverButton: ChatMediaEditorCoverButton?
         var coverEditView: ChatMediaEditorCoverEditView?
@@ -623,6 +625,7 @@ public final class ChatMediaEditorScreen: ViewController, ChatMediaGalleryContro
             self.updateCameraButtonLayout(layout: layout, safeInsets: safeInsets, toolbarFrame: editorLayout.toolbarFrame, keyboardHeight: keyboardHeight, transition: transition)
             self.updateScrubber(layout: layout, safeInsets: safeInsets, transition: ComponentTransition(transition))
             self.updateMuteButton(layout: layout, safeInsets: safeInsets, transition: transition)
+            self.metaGramUpdateRoundButton(transition: transition)
             self.updateCoverLayout(layout: layout, safeInsets: safeInsets, transition: transition)
             self.updateLivePhotoLayout(layout: layout, safeInsets: safeInsets, transition: transition)
             self.updateCropLayout(layout: layout, transition: transition)
