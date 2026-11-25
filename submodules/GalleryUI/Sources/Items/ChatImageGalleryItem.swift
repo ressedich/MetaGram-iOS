@@ -380,8 +380,7 @@ final class ChatImageGalleryItemNode: ZoomableContentGalleryItemNode {
                     }
                     return nil
                 }
-                strongSelf.metaGramRecognizedText = recognizedTexts.isEmpty ? nil : recognizedTexts.joined(separator: "
-")
+                strongSelf.metaGramRecognizedText = recognizedTexts.isEmpty ? nil : recognizedTexts.joined(separator: String(UnicodeScalar(10)))
                 if !results.isEmpty {
                     let size = strongSelf.imageNode.bounds.size
                     let recognizedContentNode = RecognizedContentContainer(size: size, recognitions: results, presentationData: strongSelf.context.sharedContext.currentPresentationData.with { $0 }, present: { [weak self] c, a in
