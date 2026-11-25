@@ -161,6 +161,8 @@ final class ManagedAudioRecorderContext {
     private let queue: Queue
     private let mediaManager: MediaManager
     private var oggWriter: TGOggOpusWriter
+    /// MetaGram "Voice Effect", chosen when the recording starts.
+    private let metaGramVoiceEffect = MetaGramVoiceEffectProcessor(effect: MetaGramSettings.voiceEffect)
     private var dataItem: TGDataItem
     private var audioBuffer = Data()
     
@@ -628,6 +630,7 @@ final class ManagedAudioRecorderContext {
                 self.audioBuffer.append(currentEncoderPacket.assumingMemoryBound(to: UInt8.self), count: currentEncoderPacketSize)
                 break
             } else {
+                self.metaGramVoiceEffect?.process(samples: currentEncoderPacket.assumingMemoryBound(to: Int16.self), count: currentEncoderPacketSize / 2)
                 self.processWaveformPreview(samples: currentEncoderPacket.assumingMemoryBound(to: Int16.self), count: currentEncoderPacketSize / 2)
                 
                 self.oggWriter.writeFrame(currentEncoderPacket.assumingMemoryBound(to: UInt8.self), frameByteCount: UInt(currentEncoderPacketSize))

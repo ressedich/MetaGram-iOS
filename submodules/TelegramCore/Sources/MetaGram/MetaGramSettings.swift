@@ -140,6 +140,28 @@ public enum MetaGramSettings {
         }
     }
 
+    // MARK: - Voice effect
+
+    /// MetaGram "Voice Effect": how voice messages are changed while they are recorded.
+    public enum VoiceEffect: Int, CaseIterable, Sendable {
+        case none = 0
+        case low = 1
+        case high = 2
+        case robot = 3
+        case echo = 4
+    }
+
+    private static let voiceEffectKey = "metagram.voice.effect"
+
+    public static var voiceEffect: VoiceEffect {
+        get {
+            return VoiceEffect(rawValue: UserDefaults.standard.integer(forKey: voiceEffectKey)) ?? .none
+        }
+        set {
+            UserDefaults.standard.set(newValue.rawValue, forKey: voiceEffectKey)
+        }
+    }
+
     // MARK: - Local Premium
 
     /// The users of this device's accounts (`PeerId.toInt64()`), registered as each account is created.

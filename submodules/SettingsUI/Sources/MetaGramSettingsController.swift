@@ -26,6 +26,7 @@ private struct MetaGramStrings {
 // MARK: - Catalog
 
 private enum MetaGramSettingsAction: Equatable {
+    case voiceEffect
     case messageFilters
     case shadowBanned
     case appIcon
@@ -65,7 +66,9 @@ private let metaGramCatalog: [MetaGramGroup] = [
     MetaGramGroup(en: "SENDING", ru: "ОТПРАВКА", options: [
         MetaGramOption(key: .sendWithoutSound, en: "Send without Sound", ru: "Отправлять без звука"),
         MetaGramOption(key: .delayedSend, en: "Delayed Send (~12 s)", ru: "Отложенная отправка (~12 с)"),
-    ], footerEn: "Delayed Send holds text messages for about 12 seconds as scheduled messages, so they can still be cancelled. Media is sent at once.", footerRu: "Отложенная отправка держит текстовые сообщения около 12 секунд как запланированные — их ещё можно отменить. Медиа уходит сразу."),
+    ], actions: [
+        MetaGramActionOption(action: .voiceEffect, en: "Voice Effect", ru: "Эффект голоса"),
+    ], footerEn: "Delayed Send holds text messages for about 12 seconds as scheduled messages, so they can still be cancelled. Media is sent at once. The voice effect changes your voice in voice messages you record.", footerRu: "Отложенная отправка держит текстовые сообщения около 12 секунд как запланированные — их ещё можно отменить. Медиа уходит сразу. Эффект голоса меняет ваш голос в записываемых голосовых сообщениях."),
     MetaGramGroup(en: "SAVING & LOGS", ru: "СОХРАНЕНИЕ И ЛОГИ", options: [
         MetaGramOption(key: .saveDeletedMessages, en: "Save Deleted Messages", ru: "Сохранять удалённые сообщения"),
         MetaGramOption(key: .saveInBotDialogs, en: "Save in Bot Dialogs", ru: "Сохранять в чатах с ботами"),
@@ -217,6 +220,8 @@ private func metaGramSettingsEntries(strings: PresentationStrings) -> [MetaGramS
         for option in group.actions {
             let label: String
             switch option.action {
+            case .voiceEffect:
+                label = metaGramVoiceEffectTitle(MetaGramSettings.voiceEffect, s)
             case .messageFilters:
                 label = "\(MetaGramSettings.list(.messageFilters).count)"
             case .shadowBanned:
@@ -244,6 +249,7 @@ public func metaGramSettingsController(context: AccountContext) -> ViewControlle
     }
 
     var pushImpl: ((ViewController) -> Void)?
+    var presentImpl: ((ViewController) -> Void)?
 
     let arguments = MetaGramSettingsControllerArguments(
         setGhostMode: { value in
@@ -259,6 +265,28 @@ public func metaGramSettingsController(context: AccountContext) -> ViewControlle
         },
         open: { action in
             switch action {
+            case .voiceEffect:
+                let presentationData = context.sharedContext.currentPresentationData.with { $0 }
+                let s = MetaGramStrings(presentationData.strings)
+                let actionSheet = ActionSheetController(presentationData: presentationData)
+                var items: [ActionSheetItem] = []
+                for effect in MetaGramSettings.VoiceEffect.allCases {
+                    let mark = effect == MetaGramSettings.voiceEffect ? "✓ " : ""
+                    items.append(ActionSheetButtonItem(title: mark + metaGramVoiceEffectTitle(effect, s), color: .accent, action: { [weak actionSheet] in
+                        actionSheet?.dismissAnimated()
+                        MetaGramSettings.voiceEffect = effect
+                        refresh()
+                    }))
+                }
+                actionSheet.setItemGroups([
+                    ActionSheetItemGroup(items: items),
+                    ActionSheetItemGroup(items: [
+                        ActionSheetButtonItem(title: presentationData.strings.Common_Cancel, color: .accent, font: .bold, action: { [weak actionSheet] in
+                            actionSheet?.dismissAnimated()
+                        })
+                    ])
+                ])
+                presentImpl?(actionSheet)
             case .messageFilters:
                 pushImpl?(metaGramMessageFiltersController(context: context, updated: refresh))
             case .shadowBanned:
@@ -284,7 +312,25 @@ public func metaGramSettingsController(context: AccountContext) -> ViewControlle
     pushImpl = { [weak controller] c in
         controller?.push(c)
     }
+    presentImpl = { [weak controller] c in
+        controller?.present(c, in: .window(.root))
+    }
     return controller
+}
+
+private func metaGramVoiceEffectTitle(_ effect: MetaGramSettings.VoiceEffect, _ s: MetaGramStrings) -> String {
+    switch effect {
+    case .none:
+        return s.text("Off", "Выключен")
+    case .low:
+        return s.text("Low Voice", "Низкий голос")
+    case .high:
+        return s.text("High Voice", "Высокий голос")
+    case .robot:
+        return s.text("Robot", "Робот")
+    case .echo:
+        return s.text("Echo", "Эхо")
+    }
 }
 
 // MARK: - Message filters editor
