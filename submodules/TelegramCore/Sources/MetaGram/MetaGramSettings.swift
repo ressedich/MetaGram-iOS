@@ -88,7 +88,7 @@ public enum MetaGramSettings {
         case speedBoost = "metagram.media.speedBoost"
         /// "Send as Video Message" for videos picked from the gallery.
         case sendVideoAsRound = "metagram.media.sendVideoAsRound"
-        /// A Live Activity shows the MetaGram logo in the Dynamic Island while the app runs.
+        /// While the app is open, the Dynamic Island shows the MetaGram logo (a badge drawn around it).
         case islandBadge = "metagram.appearance.islandBadge"
 
         // Appearance

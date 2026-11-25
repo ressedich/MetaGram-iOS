@@ -30,8 +30,8 @@ import SettingsUI
             return
         }
         self.appDelegate?.handleDidBecomeActive()
-        // MetaGram "Logo in Dynamic Island": an activity can only be started while the app is in the foreground
-        MetaGramLiveActivity.update()
+        // MetaGram "Logo in Dynamic Island": the badge around the island while the app is open
+        MetaGramIslandBadge.update(window: self.window)
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
