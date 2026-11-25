@@ -1,5 +1,7 @@
 #import <TgVoipWebrtc/OngoingCallThreadLocalContext.h>
 #include <cstdint>
+#include <algorithm>
+#include <cmath>
 
 #import "MediaUtils.h"
 
@@ -143,6 +145,138 @@ public:
 };
 
 }
+
+// MetaGram "Voice Effect in Calls": changes the microphone's voice before it is sent, so the other side hears it
+// changed. The device's audio here has already been through the system's echo cancellation (Voice-Processing I/O),
+// so the effect does not disturb it. The effect is MetaGram's setting `metagram.call.voiceEffect` (0 off, 1 low,
+// 2 high, 3 robot, 4 echo, 5 female), re-read about once a second, so it can be changed during a call. Same
+// algorithms as the voice-message effect (Camera/Sources/MetaGramVoiceEffect.swift).
+class MetaGramCallVoiceEffect {
+public:
+    // Returns `samples` changed into an internal buffer, or `samples` itself when the effect is off.
+    const void *process(const void *samples, size_t nSamples, size_t nBytesPerSample, size_t nChannels, uint32_t sampleRate) {
+        if (_checkCounter <= 0) {
+            _checkCounter = 100;
+            int effect = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"metagram.call.voiceEffect"];
+            if (effect != _effect || sampleRate != _sampleRate) {
+                configure(effect, sampleRate);
+            }
+        }
+        _checkCounter--;
+        if (_effect <= 0 || _effect > 5 || samples == nullptr || nChannels == 0 || nBytesPerSample != 2 * nChannels) {
+            return samples;
+        }
+        size_t count = nSamples * nChannels;
+        if (_buffer.size() < count) {
+            _buffer.resize(count);
+        }
+        const int16_t *input = (const int16_t *)samples;
+        for (size_t frame = 0; frame < nSamples; frame++) {
+            float value = (float)input[frame * nChannels] / 32768.0f;
+            float output = processSample(value);
+            if (output > 1.0f) {
+                output = 1.0f;
+            } else if (output < -1.0f) {
+                output = -1.0f;
+            }
+            int16_t result = (int16_t)(output * 32767.0f);
+            for (size_t channel = 0; channel < nChannels; channel++) {
+                _buffer[frame * nChannels + channel] = result;
+            }
+        }
+        return _buffer.data();
+    }
+
+private:
+    void configure(int effect, uint32_t sampleRate) {
+        _effect = effect;
+        _sampleRate = sampleRate > 0 ? sampleRate : 48000;
+        switch (effect) {
+            case 1: _pitchRatio = 0.72; break;
+            case 2: _pitchRatio = 1.55; break;
+            case 5: _pitchRatio = 1.34; break;
+            default: _pitchRatio = 1.0; break;
+        }
+        _windowLength = (double)_sampleRate * (effect == 5 ? 0.035 : 0.05);
+        size_t delaySize = std::max((size_t)8192, (size_t)(_sampleRate * 0.2));
+        _delayLine.assign(delaySize, 0.0f);
+        _writeIndex = 0;
+        _phase = 0.0;
+        _shelfState = 0.0f;
+        _modulatorPhase = 0.0;
+        _echoLine.assign(std::max((size_t)1, (size_t)(_sampleRate * 0.25)), 0.0f);
+        _echoIndex = 0;
+    }
+
+    float readDelayed(double delay) {
+        size_t size = _delayLine.size();
+        double position = (double)_writeIndex - delay;
+        while (position < 0.0) {
+            position += (double)size;
+        }
+        size_t index = (size_t)position;
+        float fraction = (float)(position - (double)index);
+        float a = _delayLine[index % size];
+        float b = _delayLine[(index + 1) % size];
+        return a + (b - a) * fraction;
+    }
+
+    float pitchShift(float input) {
+        _delayLine[_writeIndex] = input;
+        _phase += (1.0 - _pitchRatio) / _windowLength;
+        _phase -= floor(_phase);
+        double phaseA = _phase;
+        double phaseB = _phase + 0.5;
+        phaseB -= floor(phaseB);
+        double minimumDelay = 8.0;
+        float gainA = (float)(sin(M_PI * phaseA) * sin(M_PI * phaseA));
+        float gainB = (float)(sin(M_PI * phaseB) * sin(M_PI * phaseB));
+        float output = readDelayed(minimumDelay + phaseA * _windowLength) * gainA + readDelayed(minimumDelay + phaseB * _windowLength) * gainB;
+        _writeIndex = (_writeIndex + 1) % _delayLine.size();
+        return output;
+    }
+
+    float processSample(float input) {
+        switch (_effect) {
+            case 1:
+            case 2:
+                return pitchShift(input);
+            case 5: {
+                float shifted = pitchShift(input);
+                _shelfState += 0.25f * (shifted - _shelfState);
+                return shifted + (shifted - _shelfState) * 0.35f;
+            }
+            case 3: {
+                float modulator = (float)sin(2.0 * M_PI * _modulatorPhase);
+                _modulatorPhase += 50.0 / (double)_sampleRate;
+                _modulatorPhase -= floor(_modulatorPhase);
+                return input * modulator * 1.4f + input * 0.15f;
+            }
+            case 4: {
+                float delayed = _echoLine[_echoIndex];
+                _echoLine[_echoIndex] = input + delayed * 0.38f;
+                _echoIndex = (_echoIndex + 1) % _echoLine.size();
+                return input + delayed * 0.45f;
+            }
+            default:
+                return input;
+        }
+    }
+
+    int _effect = 0;
+    uint32_t _sampleRate = 0;
+    int _checkCounter = 0;
+    std::vector<int16_t> _buffer;
+    std::vector<float> _delayLine;
+    size_t _writeIndex = 0;
+    double _phase = 0.0;
+    double _pitchRatio = 1.0;
+    double _windowLength = 2400.0;
+    float _shelfState = 0.0f;
+    double _modulatorPhase = 0.0;
+    std::vector<float> _echoLine;
+    size_t _echoIndex = 0;
+};
 
 class WrappedAudioDeviceModuleIOS : public tgcalls::DefaultWrappedAudioDeviceModule, public webrtc::AudioTransport {
 public:
@@ -496,9 +630,10 @@ public:
     ) override {
         _mutex.Lock();
         if (!_audioTransports.empty()) {
+            const void *metaGramSamples = _metaGramVoiceEffect.process(audioSamples, nSamples, nBytesPerSample, nChannels, samplesPerSec);
             for (size_t i = 0; i < _audioTransports.size(); i++) {
                 _audioTransports[i].first->RecordedDataIsAvailable(
-                    audioSamples,
+                    metaGramSamples,
                     nSamples,
                     nBytesPerSample,
                     nChannels,
@@ -530,9 +665,10 @@ public:
     ) override {
         _mutex.Lock();
         if (!_audioTransports.empty()) {
+            const void *metaGramSamples = _metaGramVoiceEffect.process(audioSamples, nSamples, nBytesPerSample, nChannels, samplesPerSec);
             for (size_t i = 0; i < _audioTransports.size(); i++) {
                 _audioTransports[i].first->RecordedDataIsAvailable(
-                    audioSamples,
+                    metaGramSamples,
                     nSamples,
                     nBytesPerSample,
                     nChannels,
@@ -763,6 +899,7 @@ private:
     std::vector<std::pair<webrtc::AudioTransport *, bool>> _audioTransports;
     webrtc::Mutex _mutex;
     std::vector<int16_t> _mixAudioSamples;
+    MetaGramCallVoiceEffect _metaGramVoiceEffect;
 };
 
 class WrappedChildAudioDeviceModule : public tgcalls::DefaultWrappedAudioDeviceModule {

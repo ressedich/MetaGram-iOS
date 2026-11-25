@@ -183,6 +183,19 @@ public enum MetaGramSettings {
         }
     }
 
+    private static let callVoiceEffectKey = "metagram.call.voiceEffect"
+
+    /// MetaGram "Voice Effect in Calls": how the microphone is changed in calls (read by TgVoipWebrtc's audio device
+    /// wrapper, `OngoingCallThreadLocalContext.mm`). Off by default.
+    public static var callVoiceEffect: VoiceEffect {
+        get {
+            return VoiceEffect(rawValue: UserDefaults.standard.integer(forKey: callVoiceEffectKey)) ?? .none
+        }
+        set {
+            UserDefaults.standard.set(newValue.rawValue, forKey: callVoiceEffectKey)
+        }
+    }
+
     // MARK: - Local Premium
 
     /// The users of this device's accounts (`PeerId.toInt64()`), registered as each account is created.
